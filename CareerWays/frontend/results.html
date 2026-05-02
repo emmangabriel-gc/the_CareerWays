@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Results - CareerWays</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/results.css">
+</head>
+
+<body>
+    <div class="results-container">
+        <!-- Header -->
+        <header class="results-header">
+            <div class="header-left">
+                <h1 class="logo">CareerWays</h1>
+            </div>
+            <div class="header-right">
+                <span id="userNameDisplay" class="user-name"></span>
+                <button id="logoutBtn" class="btn btn-secondary">Log Out</button>
+            </div>
+        </header>
+
+        <!-- Main Results Content -->
+        <main class="results-main">
+            <!-- Results Header -->
+            <section class="results-header-section">
+                <h2>Your Assessment Results</h2>
+                <p>Based on your responses, here are our personalized course recommendations for you.</p>
+            </section>
+
+            <!-- Analysis Summary -->
+            <section class="analysis-summary">
+                <div class="summary-card">
+                    <h3>Your Profile Analysis</h3>
+                    <div id="profileAnalysis" class="analysis-content">
+                        <!-- Profile details will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommended Courses -->
+            <section class="recommended-courses">
+                <h3>Recommended Courses for You</h3>
+                <div id="coursesList" class="courses-grid">
+                    <!-- Courses will be populated here -->
+                </div>
+            </section>
+
+            <!-- Course Detail Modal -->
+            <div id="courseDetailModal" class="modal" style="display: none;">
+                <div class="modal-content course-modal">
+                    <button class="modal-close">&times;</button>
+                    <div id="courseDetail" class="course-detail-content">
+                        <!-- Course details will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <section class="results-actions">
+                <button id="anotherAssessmentBtn" class="btn btn-primary">Take Another Assessment</button>
+                <button id="backToDashboardBtn" class="btn btn-secondary">Back to Dashboard</button>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="results-footer">
+            <p>&copy; 2026 CareerWays. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+
+    <script src="js/results.js"></script>
+</body>
+
+</html>

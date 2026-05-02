@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment - CareerWays</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/assessment.css">
+</head>
+
+<body>
+    <div class="assessment-container">
+        <!-- Header -->
+        <header class="assessment-header">
+            <div class="header-left">
+                <button id="backBtn" title="Back"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                        stroke-width="2" width="16" height="16">
+                        <polyline points="10,3 4,8 10,13" />
+                    </svg></button>
+                <h1>Career Assessment</h1>
+            </div>
+            <div class="header-right">
+                <span id="userNameDisplay" class="user-name"></span>
+                <button id="logoutBtn" class="btn btn-secondary">Log Out</button>
+            </div>
+        </header>
+
+        <!-- Main Assessment Content -->
+        <main class="assessment-main">
+            <!-- Chat/Assessment Interface -->
+            <div class="assessment-chat-container">
+                <!-- Messages Display Area -->
+                <div id="chatMessages" class="chat-messages">
+                    <!-- Messages will be appended here -->
+                </div>
+
+                <!-- Input Section -->
+                <div class="chat-input-section">
+                    <form id="assessmentForm" class="chat-input-form">
+                        <div class="input-wrapper">
+                            <textarea id="userResponse" class="chat-input"
+                                placeholder="Tell us more about yourself--what are your interests, skills, experience, and goals?"
+                                rows="3" required></textarea>
+                            <button type="submit" id="sendBtn" class="btn-send">Send</button>
+                        </div>
+                        <div class="input-info">
+                            <span id="charCount">0</span> / 1000 characters
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing your response...</p>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="assessment-footer">
+            <p>&copy; 2026 CareerWays. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification"></div>
+
+    <script type="module" src="js/assessment.js"></script>
+</body>
+
+</html>

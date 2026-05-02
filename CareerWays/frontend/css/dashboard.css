@@ -1,0 +1,872 @@
+/* =====================
+   CareerWays Dashboard
+   ===================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+    --primary: #FF7F50;
+    --primary-light: rgba(255, 127, 80, 0.1);
+    --primary-hover: #E66B3D;
+    --sidebar-width: 230px;
+    --header-height: 56px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Anonymous Pro', monospace;
+    background: var(--bg-page, #f5f4f0);
+    color: var(--text-dark, #1a1a1a);
+    min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: url('bg-wave.png') no-repeat top center / cover;
+    opacity: 0.25;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.cw-layout {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Layout ── */
+.cw-layout {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Sidebar ── */
+.cw-sidebar {
+    width: var(--sidebar-width);
+    background: #ffffff;
+    border-right: 0.5px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 200;
+    padding: 1.5rem 0;
+    transition: transform 0.3s ease;
+}
+
+.cw-logo {
+    padding: 0 1.25rem 1.75rem;
+}
+
+.logo-career {
+    color: var(--primary);
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Anonymous Pro', monospace;
+}
+
+.logo-ways {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-family: 'Anonymous Pro', monospace;
+}
+
+.logo-tagline {
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 1px;
+    margin-top: 2px;
+    font-family: 'Anonymous Pro', monospace;
+}
+
+.cw-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 0.75rem;
+}
+
+.cw-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #555;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.cw-nav-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.cw-nav-item:hover {
+    background: #f5f4f0;
+    color: #1a1a1a;
+}
+
+.cw-nav-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.cw-nav-item.active svg {
+    opacity: 1;
+}
+
+/* Dashboard Title Bold */
+.dashboard-title {
+    font-weight: 700;
+}
+
+/* Black Logo Styles */
+.cw-logo-black .logo-career,
+.cw-logo-black .logo-ways {
+    color: #1a1a1a;
+}
+
+/* Recent Assessment - Enlarge Most Suitable Course */
+.assessment-item.featured {
+    transform: scale(1.02);
+    border: 2px solid var(--primary);
+    box-shadow: 0 4px 20px rgba(255, 127, 80, 0.15);
+}
+
+.assessment-item.featured .assessment-course-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+/* Most compatible course name - bold in all cards */
+.assessment-course-name.featured-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Logout Button Toggle */
+#logoutBtn {
+    margin-top: 0.5rem;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cw-sidebar-footer {
+    padding: 0 0.75rem;
+}
+
+.cw-divider {
+    border: none;
+    border-top: 0.5px solid rgba(0, 0, 0, 0.1);
+    margin: 0 0 0.75rem;
+}
+
+.cw-user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 2px;
+}
+
+.cw-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.cw-avatar-lg {
+    width: 44px;
+    height: 44px;
+    font-size: 16px;
+}
+
+.cw-user-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cw-logout {
+    color: #888;
+}
+
+.cw-logout:hover {
+    color: #c0392b;
+    background: rgba(192, 57, 43, 0.07);
+}
+
+/* ── Content wrapper ── */
+.cw-content-wrapper {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ── Mobile header ── */
+.cw-mobile-header {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+    height: var(--header-height);
+    background: #ffffff;
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.cw-burger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px;
+    z-index: 301;
+}
+
+.cw-burger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #333;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.cw-burger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+.cw-burger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.cw-burger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+.cw-mobile-logo {
+    font-size: 16px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.cw-mobile-user {
+    font-size: 13px;
+    color: #888;
+}
+
+/* ── Main ── */
+.cw-main {
+    padding: 2rem;
+    max-width: 960px;
+    width: 100%;
+}
+
+/* ── Views ── */
+.cw-view {
+    display: none;
+}
+
+.cw-view.active {
+    display: block;
+}
+
+/* ── Page title ── */
+.cw-page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+}
+
+/* ── Welcome card ── */
+.cw-welcome-card {
+    background: #fff;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cw-welcome-text h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.cw-welcome-text p {
+    font-size: 13px;
+    color: #777;
+}
+
+.cw-stats-row {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cw-stat {
+    background: #f5f4f0;
+    border: 0.5px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    text-align: center;
+    min-width: 72px;
+}
+
+.cw-stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1;
+}
+
+.cw-stat-label {
+    font-size: 10px;
+    color: #999;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ── Assessment CTA card ── */
+.cw-assessment-card {
+    background: #fff;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    border-left: 3px solid var(--primary);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.cw-assessment-card h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+}
+
+.cw-assessment-card p {
+    font-size: 13px;
+    color: #777;
+    max-width: 480px;
+}
+
+/* ── Buttons ── */
+.cw-btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.4rem;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.cw-btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.cw-btn-primary:active {
+    transform: scale(0.98);
+}
+
+.cw-btn-outline {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem 1.1rem;
+    font-size: 13px;
+    cursor: pointer;
+    color: #444;
+    transition: border-color 0.15s, background 0.15s;
+    margin-top: 0.75rem;
+}
+
+.cw-btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+.cw-btn-danger {
+    background: transparent;
+    border: 1px solid rgba(192, 57, 43, 0.3);
+    border-radius: 8px;
+    padding: 0.5rem 1.1rem;
+    font-size: 13px;
+    cursor: pointer;
+    color: #c0392b;
+    margin-top: 0.75rem;
+    transition: background 0.15s;
+}
+
+.cw-btn-danger:hover {
+    background: rgba(192, 57, 43, 0.07);
+}
+
+/* ── Section ── */
+.cw-section {
+    margin-bottom: 1.5rem;
+}
+
+.cw-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.cw-section-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.cw-section-link {
+    font-size: 13px;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.cw-section-link:hover {
+    text-decoration: underline;
+}
+
+/* ── Cards ── */
+.cw-card {
+    background: #fff;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+}
+
+.cw-empty {
+    font-size: 13px;
+    color: #999;
+    padding: 0.5rem 0;
+}
+
+/* ── Assessments grid ── */
+.cw-assessments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.assessment-item {
+    background: #fff;
+    border: 0.5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.assessment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.assessment-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.assessment-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.assessment-score {
+    background: #27ae60;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.assessment-best-fit {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.assessment-courses {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 4px;
+}
+
+.assessment-item-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 0.75rem;
+}
+
+.assessment-item-actions button {
+    flex: 1;
+    padding: 0.45rem;
+    font-size: 12px;
+    border: 0.5px solid rgba(0, 0, 0, 0.12);
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.15s;
+}
+
+.assessment-item-actions button:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+}
+
+/* ── Settings ── */
+.cw-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.cw-danger-zone {
+    grid-column: 1 / -1;
+    margin-top: 0.5rem;
+}
+
+.cw-settings-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.cw-settings-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+}
+
+.cw-settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0.75rem;
+}
+
+.cw-settings-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.cw-settings-email {
+    font-size: 12px;
+    color: #999;
+    margin-top: 2px;
+}
+
+.cw-settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 0.5px solid rgba(0, 0, 0, 0.05);
+}
+
+.cw-settings-label {
+    font-size: 13px;
+    color: #777;
+}
+
+.cw-settings-value {
+    font-size: 13px;
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+.cw-settings-desc {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 0.25rem;
+}
+
+.cw-badge {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.cw-danger-zone {
+    border-color: rgba(192, 57, 43, 0.2);
+}
+
+.cw-danger-title {
+    color: #c0392b;
+}
+
+.cw-danger-zone-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.cw-danger-zone-row .cw-settings-desc {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.cw-danger-zone-row .cw-btn-danger {
+    margin-top: 0;
+    flex-shrink: 0;
+}
+
+/* ── Overlay ── */
+.cw-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 150;
+}
+
+.cw-overlay.active {
+    display: block;
+}
+
+/* ── Notification ── */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.notification.success {
+    background: #27ae60;
+    color: white;
+}
+
+.notification.error {
+    background: #c0392b;
+    color: white;
+}
+
+.notification.info {
+    background: #2980b9;
+    color: white;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+    .cw-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .cw-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .cw-mobile-header {
+        display: flex;
+    }
+
+    .cw-content-wrapper {
+        margin-left: 0;
+        flex-direction: column;
+    }
+
+    .cw-main {
+        padding: 1.25rem;
+    }
+
+    .cw-welcome-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cw-stats-row {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .cw-assessment-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .cw-btn-primary {
+        width: 100%;
+        text-align: center;
+    }
+
+    .cw-assessments-grid,
+    .cw-settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .cw-sidebar {
+        width: var(--sidebar-width);
+        z-index: 250;
+    }
+
+    .cw-main {
+        padding: 1rem;
+    }
+
+    .cw-welcome-card,
+    .cw-assessment-card {
+        padding: 1rem;
+    }
+
+    .cw-page-title {
+        font-size: 20px;
+        margin-bottom: 1rem;
+    }
+
+    .cw-stats-row {
+        gap: 8px;
+    }
+
+    .cw-stat {
+        padding: 0.5rem 0.75rem;
+        min-width: 60px;
+        font-size: 12px;
+    }
+
+    .cw-stat-num {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cw-sidebar {
+        width: 75vw;
+        max-width: 280px;
+    }
+
+    .cw-mobile-header {
+        padding: 0 0.75rem;
+    }
+
+    .cw-burger span {
+        width: 18px;
+        height: 2px;
+    }
+
+    .cw-mobile-logo {
+        font-size: 14px;
+    }
+
+    .cw-main {
+        padding: 0.75rem;
+    }
+
+    .cw-welcome-card,
+    .cw-assessment-card {
+        padding: 0.75rem 1rem;
+    }
+
+    .cw-page-title {
+        font-size: 18px;
+        margin-bottom: 0.75rem;
+    }
+
+    .cw-stats-row {
+        gap: 6px;
+    }
+
+    .cw-stat {
+        padding: 0.4rem 0.5rem;
+        min-width: 50px;
+        font-size: 10px;
+    }
+
+    .cw-stat-num {
+        font-size: 16px;
+    }
+
+    .cw-assessments-grid,
+    .cw-settings-grid {
+        grid-template-columns: 1fr;
+    }
+}

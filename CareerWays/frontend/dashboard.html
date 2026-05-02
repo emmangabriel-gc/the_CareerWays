@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CareerWays</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+    <div class="cw-layout">
+
+        <!-- Sidebar -->
+        <aside class="cw-sidebar" id="sidebar">
+            <div class="cw-logo cw-logo-black">
+                <span class="logo-career">Career</span><span class="logo-ways">Ways</span>
+                <p class="logo-tagline">describe . search . discover</p>
+            </div>
+
+            <nav class="cw-nav">
+                <a href="#" class="cw-nav-item active" id="navDashboard">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="1" y="1" width="6" height="6" rx="1" />
+                        <rect x="9" y="1" width="6" height="6" rx="1" />
+                        <rect x="1" y="9" width="6" height="6" rx="1" />
+                        <rect x="9" y="9" width="6" height="6" rx="1" />
+                    </svg>
+                    <strong>Dashboard</strong>
+                </a>
+                <a href="#" class="cw-nav-item" id="navAssessments">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="1,11 5,7 8,9 12,4 15,6" />
+                        <line x1="1" y1="15" x2="15" y2="15" />
+                    </svg>
+                    Recent Assessments
+                </a>
+                <a href="favorites.html" class="cw-nav-item" id="navFavorites">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 1.9.7-4L2.2 5.7l4-.6z" />
+                    </svg>
+                    Favorites
+                </a>
+                <a href="#" class="cw-nav-item" id="navSettings">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="8" cy="8" r="2.5" />
+                        <path
+                            d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" />
+                    </svg>
+                    Settings
+                </a>
+            </nav>
+
+            <div class="cw-sidebar-footer">
+                <hr class="cw-divider" />
+                <div class="cw-user-row" id="userRow" style="cursor: pointer;">
+                    <div class="cw-avatar" id="sidebarAvatar">U</div>
+                    <span class="cw-user-name" id="sidebarUserName">User</span>
+                </div>
+                <a href="#" class="cw-nav-item cw-logout" id="logoutBtn" style="display: none;">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3" />
+                        <polyline points="10,11 14,8 10,5" />
+                        <line x1="14" y1="8" x2="6" y2="8" />
+                    </svg>
+                    Log out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Mobile overlay -->
+        <div class="cw-overlay" id="overlay"></div>
+
+        <!-- Main content -->
+        <div class="cw-content-wrapper">
+
+            <!-- Mobile header -->
+            <header class="cw-mobile-header">
+                <button class="cw-burger" id="burgerBtn">
+                    <span></span><span></span><span></span>
+                </button>
+                <span class="cw-mobile-logo cw-logo-black"><span class="logo-career">Career</span><span
+                        class="logo-ways">Ways</span></span>
+                <span class="cw-mobile-user" id="mobileUserName"></span>
+            </header>
+
+            <main class="cw-main" id="mainContent">
+
+                <!-- DASHBOARD VIEW -->
+                <div id="viewDashboard" class="cw-view active">
+                    <h1 class="cw-page-title">Dashboard</h1>
+
+                    <!-- Welcome card -->
+                    <div class="cw-welcome-card">
+                        <div class="cw-welcome-text">
+                            <h3>Welcome back, <span id="welcomeName">User</span></h3>
+                            <p>Start exploring courses that match your interests, skills, and career goals.</p>
+                        </div>
+                        <div class="cw-stats-row">
+                            <div class="cw-stat">
+                                <div class="cw-stat-num" id="statAssessments">0</div>
+                                <div class="cw-stat-label">Assessments</div>
+                            </div>
+                            <div class="cw-stat">
+                                <div class="cw-stat-num" id="statRecs">0</div>
+                                <div class="cw-stat-label">Recommendations</div>
+                            </div>
+                            <div class="cw-stat">
+                                <div class="cw-stat-num" id="statFavs">0</div>
+                                <div class="cw-stat-label">Favorites</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start Assessment -->
+                    <div class="cw-assessment-card">
+                        <div>
+                            <h4>Career Assessment</h4>
+                            <p>Answer one simple question and let our AI analyze your profile to recommend the perfect
+                                courses for you.</p>
+                        </div>
+                        <button class="cw-btn-primary" id="startAssessmentBtn">Start Assessment</button>
+                    </div>
+
+                    <!-- Recent assessments preview -->
+                    <div class="cw-section">
+                        <div class="cw-section-header">
+                            <h3>Recent Assessments</h3>
+                            <a href="#" class="cw-section-link" id="viewAllLink">View all</a>
+                        </div>
+                        <div class="cw-card" id="dashboardAssessmentsList">
+                            <div class="cw-empty">No previous assessments yet. Start your first assessment!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECENT ASSESSMENTS VIEW -->
+                <div id="viewAssessments" class="cw-view">
+                    <h1 class="cw-page-title">Recent Assessments</h1>
+                    <div id="assessmentsList" class="cw-assessments-grid">
+                        <div class="cw-empty">No previous assessments yet.</div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS VIEW -->
+                <div id="viewSettings" class="cw-view">
+                    <h1 class="cw-page-title">Settings</h1>
+
+                    <div class="cw-settings-grid">
+                        <!-- Profile -->
+                        <div class="cw-card cw-settings-section">
+                            <h4 class="cw-settings-title">Profile</h4>
+                            <div class="cw-settings-row">
+                                <div class="cw-avatar cw-avatar-lg" id="settingsAvatar">U</div>
+                                <div>
+                                    <p class="cw-settings-name" id="settingsName">User</p>
+                                    <p class="cw-settings-email" id="settingsEmail">—</p>
+                                </div>
+                            </div>
+                            <button class="cw-btn-outline" onclick="window.location.href='profile.html'">Edit
+                                Profile</button>
+                        </div>
+
+                        <!-- Account -->
+                        <div class="cw-card cw-settings-section">
+                            <h4 class="cw-settings-title">Account</h4>
+                            <div class="cw-settings-item">
+                                <span class="cw-settings-label">Account type</span>
+                                <span class="cw-badge" id="settingsAccountType">Registered</span>
+                            </div>
+                            <div class="cw-settings-item">
+                                <span class="cw-settings-label">Member since</span>
+                                <span class="cw-settings-value" id="settingsMemberSince">—</span>
+                            </div>
+                        </div>
+
+                        <!-- Favorites -->
+                        <div class="cw-card cw-settings-section">
+                            <h4 class="cw-settings-title">Favorites</h4>
+                            <div class="cw-settings-item">
+                                <span class="cw-settings-label">Saved courses</span>
+                                <span class="cw-settings-value" id="settingsFavCount">0</span>
+                            </div>
+                            <button class="cw-btn-outline" onclick="window.location.href='favorites.html'">View
+                                Favorites</button>
+                        </div>
+
+                        <!-- Danger zone -->
+                        <div class="cw-card cw-settings-section cw-danger-zone">
+                            <h4 class="cw-settings-title cw-danger-title">Danger Zone</h4>
+                            <div class="cw-danger-zone-row">
+                                <p class="cw-settings-desc">Permanently delete your account and all associated data.
+                                    This action cannot be undone.</p>
+                                <button class="cw-btn-danger">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

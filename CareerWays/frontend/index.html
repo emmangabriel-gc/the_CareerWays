@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerWays - AI-Powered Course Guidance</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+    <div class="index-container">
+        <!-- Header with Logo -->
+        <header class="header">
+            <div class="logo-section">
+                <img src="assets/logo.png" alt="CareerWays Logo" class="brand-logo">
+                <h1 class="logo">CareerWays</h1>
+                <p class="tagline">describe . search . discover</p>
+            </div>
+        </header>
+
+        <!-- Authentication Section -->
+        <section class="auth-section">
+            <div class="auth-container">
+                <h3>Get Started</h3>
+
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-tab="login">Log In</button>
+                    <button class="tab-btn" data-tab="signup">Sign Up</button>
+                    <button class="tab-btn" data-tab="guest">Continue as Guest</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login" class="tab-content active">
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" name="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="login-password" name="password" required
+                                    placeholder="Enter your password">
+                                <button type="button" class="toggle-password" id="toggleLoginPassword">Show</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Log In</button>
+                        <p class="form-hint">Don't have an account? <span class="switch-tab" data-tab="signup">Sign up
+                                here</span></p>
+                        <p class="form-hint"><a href="forgot-password.html">Forgot your password?</a></p>
+                    </form>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div id="signup" class="tab-content">
+                    <form id="signupForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email">Email Address</label>
+                            <input type="email" id="signup-email" name="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password">Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="signup-password" name="password" required
+                                    placeholder="Create a password">
+                                <button type="button" class="toggle-password" id="toggleSignupPassword">Show</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-confirm">Confirm Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="signup-confirm" name="confirm" required
+                                    placeholder="Confirm your password">
+                                <button type="button" class="toggle-password" id="toggleConfirmPassword">Show</button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                        <p class="form-hint">Already have an account? <span class="switch-tab" data-tab="login">Log
+                                in here</span></p>
+                    </form>
+                </div>
+
+                <!-- Guest Access -->
+                <div id="guest" class="tab-content">
+                    <div class="guest-info">
+                        <p>Continue as a guest to explore CareerWays without creating an account.</p>
+                        <p class="warning">Note: Guest assessments are not saved. Create an account to track your
+                            progress and view previous assessments.</p>
+                        <button id="guestBtn" class="btn btn-primary">Continue as Guest</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 CareerWays. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Contact
+                    Us</a></p>
+        </footer>
+    </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div id="termsModal" class="modal-overlay">
+        <div class="terms-modal">
+            <div class="terms-header">
+                <h2>Terms and Conditions</h2>
+                <p class="terms-subtitle">Please read and accept to continue</p>
+            </div>
+            <div class="terms-content" id="termsContent">
+                <div class="terms-text">
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By accessing and using CareerWays, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not use our service.</p>
+                    
+                    <h3>2. Service Description</h3>
+                    <p>CareerWays is an AI-powered course recommendation system designed to help users discover suitable academic courses based on their interests, skills, and career aspirations.</p>
+                    
+                    <h3>3. User Accounts</h3>
+                    <p>Users may create accounts or use the service as guests. Account holders are responsible for maintaining the confidentiality of their login credentials.</p>
+                    
+                    <h3>4. Privacy and Data Collection</h3>
+                    <p>We collect and process personal information including but not limited to: name, email, assessment responses, and course preferences. This data is used to provide personalized recommendations and improve our services.</p>
+                    
+                    <h3>5. AI Recommendations</h3>
+                    <p>Course recommendations are generated using artificial intelligence and machine learning algorithms. While we strive for accuracy, these recommendations should be used as guidance only and not as definitive career advice.</p>
+                    
+                    <h3>6. User Content</h3>
+                    <p>By submitting assessment responses and other content, you grant CareerWays a license to use this information for service improvement and personalization purposes.</p>
+                    
+                    <h3>7. Intellectual Property</h3>
+                    <p>All content, trademarks, and intellectual property on CareerWays are owned by or licensed to us. Users may not reproduce, distribute, or create derivative works without permission.</p>
+                    
+                    <h3>8. Limitation of Liability</h3>
+                    <p>CareerWays is provided "as is" without warranties of any kind. We are not liable for any decisions made based on our recommendations or for any service interruptions.</p>
+                    
+                    <h3>9. Account Termination</h3>
+                    <p>We reserve the right to terminate or suspend accounts that violate these terms or engage in inappropriate behavior.</p>
+                    
+                    <h3>10. Changes to Terms</h3>
+                    <p>We may update these Terms and Conditions periodically. Continued use of the service after changes constitutes acceptance of the new terms.</p>
+                    
+                    <h3>11. Governing Law</h3>
+                    <p>These terms are governed by applicable local laws. Any disputes shall be resolved in accordance with these laws.</p>
+                    
+                    <h3>12. Contact Information</h3>
+                    <p>For questions about these terms, please contact us through our support channels.</p>
+                </div>
+            </div>
+            <div class="terms-footer">
+                <div class="terms-checkbox">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="termsCheckbox">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">I agree to the Terms and Condition of CareerWays</span>
+                    </label>
+                </div>
+                <div class="terms-actions">
+                    <button type="button" id="declineTerms" class="btn btn-secondary">Back</button>
+                    <button type="button" id="acceptTerms" class="btn btn-primary" disabled>Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message/Notification Container -->
+    <div id="notification" class="notification"></div>
+
+    <script src="js/index.js"></script>
+</body>
+
+</html>
