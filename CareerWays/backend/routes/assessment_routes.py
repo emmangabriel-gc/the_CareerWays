@@ -129,7 +129,7 @@ def analyze_response():
             # Enhanced scoring with semantic and relevance components
             semantic_score = rec.get('semantic_score', 0) or 0
             relevance_score = rec.get('relevance_score', 0) or 0
-            
+
             # Weighted combination: semantic similarity, skill matching, and relevance
             final_match_score = (
                 semantic_score * 0.4 +  # Semantic understanding
@@ -141,7 +141,7 @@ def analyze_response():
             if final_match_score >= 15:  # Minimum threshold to avoid irrelevant courses
                 match_scores[course_id] = final_match_score
                 recommended_course_ids.append(course_id)
-                
+
                 # Store embedding data for visualization
                 embedding_data[course_id] = {
                     'semantic_score': semantic_score,
@@ -159,7 +159,7 @@ def analyze_response():
         # Sort by final match score and take top recommendations
         top_courses.sort(key=lambda x: x['match_score'], reverse=True)
         top_courses = top_courses[:5]  # Limit to top 5 for user display
-        
+
         # Calculate overall match score
         overall_match_score = sum(match_scores.values(
         )) / len(match_scores) if match_scores else 0
@@ -175,7 +175,8 @@ def analyze_response():
             interests=interests,
             sentiment=sentiment,
             sentiment_score=sentiment_score,
-            experience='; '.join(experiences) if experiences else 'No specific experiences mentioned',
+            experience='; '.join(
+                experiences) if experiences else 'No specific experiences mentioned',
             recommended_courses=recommended_course_ids,
             match_scores=match_scores,
             overall_match_score=overall_match_score
@@ -202,7 +203,7 @@ def analyze_response():
             'skills': skills,
             'interests': interests,
             'sentiment': sentiment,
-            'experience': ' '.join(entities) if entities else 'Not specified',
+            'experience': ' '.join(experiences) if experiences else 'Not specified',
             'courses': top_courses,
             'match_scores': match_scores,
             'overall_match_score': overall_match_score,
@@ -238,6 +239,10 @@ def get_assessment(assessment_id):
                 course_dict = course.to_dict()
                 course_dict['match_score'] = assessment.match_scores.get(
                     course_id, 0)
+                course_dict['semantic_score'] = assessment.match_scores.get(
+                    course_id, 0)*0.4  # Assuming semantic score is part of the match score
+                course_dict['relevance_score'] = assessment.match_scores.get(
+                    course_id, 0)*0.2  # Assuming relevance score is part of the match score
                 courses_data.append(course_dict)
 
         return jsonify({
