@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://your-render-url.onrender.com/api';
+const API_BASE_URL = 'https://careerways.onrender.com/api';
 
 const backBtn = document.getElementById('backBtn');
 const logoutBtn = document.getElementById('logoutBtn');

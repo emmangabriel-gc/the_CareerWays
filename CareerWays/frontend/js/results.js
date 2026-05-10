@@ -1,6 +1,6 @@
 // results.js - Results page functionality
 
-const API_BASE_URL = 'https://your-render-url.onrender.com/api';
+const API_BASE_URL = 'https://careerways.onrender.com/api';
 
 // DOM Elements
 const userNameDisplay = document.getElementById('userNameDisplay');
