@@ -1,6 +1,6 @@
 // forgot-password.js - Password Reset using CareerWays Backend
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://your-render-url.onrender.com/api';
 
 // DOM Elements
 const notification = document.getElementById('notification');

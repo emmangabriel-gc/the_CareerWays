@@ -1,6 +1,6 @@
 // results.js - Results page functionality
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://your-render-url.onrender.com/api';
 
 // DOM Elements
 const userNameDisplay = document.getElementById('userNameDisplay');

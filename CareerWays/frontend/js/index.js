@@ -1,7 +1,7 @@
 // index.js - Index page functionality
 
 // API Base URL
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://your-render-url.onrender.com/api';
 
 // DOM Elements
 const loginForm = document.getElementById('loginForm');
