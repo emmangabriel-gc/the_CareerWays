@@ -158,7 +158,7 @@ def analyze_response():
 
         # Sort by final match score and take top recommendations
         top_courses.sort(key=lambda x: x['match_score'], reverse=True)
-        top_courses = top_courses[:5]  # Limit to top 5 for user display
+        top_courses = top_courses[:3]  # Limit to top 3 for user display
 
         # Calculate overall match score
         overall_match_score = sum(match_scores.values(
@@ -344,3 +344,71 @@ def delete_assessment(assessment_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': f'Error: {str(e)}'}), 500
+
+
+@assessment_bp.route('/top-courses', methods=['GET'])
+def get_top_courses():
+    """Get top courses with preference for current user's assessments"""
+    try:
+        # Get current user if authenticated
+        current_user = get_current_user(request)
+        
+        # Get all assessments from all users
+        all_assessments = Assessment.query.all()
+        
+        # Tally courses weighted by match_score with user preference
+        tally = {}  # courseName -> { score, appearances, abbreviation }
+        
+        for assessment in assessments:
+            if not assessment.recommended_courses:
+                continue
+                
+            score_map = assessment.match_scores or {}
+            
+            # Give higher weight to current user's assessments
+            user_weight = 2.0 if current_user and assessment.user_id == current_user.id else 1.0
+            
+            for course_id in assessment.recommended_courses:
+                course = Course.query.get(course_id)
+                if not course or not course.name:
+                    continue
+                    
+                score = score_map.get(course_id, 0) * user_weight
+                course_name = str(course.name)  # Ensure it's a string
+                
+                if course_name not in tally:
+                    tally[course_name] = { 
+                        'score': 0, 
+                        'appearances': 0, 
+                        'abbreviation': None 
+                    }
+                tally[course_name]['score'] += score
+                tally[course_name]['appearances'] += 1
+        
+        if not tally:
+            return jsonify({'courses': []}), 200
+        
+        # Sort by score and take top 5
+        sorted_courses = sorted(
+            tally.items(), 
+            key=lambda x: x[1]['score'], 
+            reverse=True
+        )[:5]
+        
+        total_score = sum(v['score'] for _, v in sorted_courses) or 1
+        
+        courses = [
+            {
+                'name': name,
+                'abbreviation': data['abbreviation'],
+                'appearances': data['appearances'],
+                'percentage': round((data['score'] / total_score) * 100)
+            }
+            for name, data in sorted_courses
+        ]
+        
+        return jsonify({'courses': courses}), 200
+        
+    except Exception as e:
+        print(f"Error in top-courses endpoint: {str(e)}")
+        return jsonify({'courses': []}), 200

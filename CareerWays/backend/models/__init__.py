@@ -18,6 +18,11 @@ class User(db.Model):
     email = db.Column(db.String(1024), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(500), nullable=False)
 
+    # Email verification fields
+    is_verified = db.Column(db.Boolean, default=False, nullable=False)
+    verification_token = db.Column(db.String(255), nullable=True)
+    verification_token_expires = db.Column(db.DateTime, nullable=True)
+
     # Password reset fields
     password_reset_otp = db.Column(db.String(10), nullable=True)
     password_reset_otp_expires = db.Column(db.DateTime, nullable=True)
@@ -48,6 +53,7 @@ class User(db.Model):
             'id': self.id,
             'name': self.name,
             'email': self.email,
+            'is_verified': self.is_verified,
             'created_at': self.created_at.isoformat()
         }
 
