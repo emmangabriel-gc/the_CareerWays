@@ -10,7 +10,26 @@
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/index.css">
+
+    <!--PWA-->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff3b30">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CareerWays">
+    <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 </head>
+
+
+        <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+        });
+    }
+    </script>
+
 
 <body>
     <div class="index-container">
@@ -98,9 +117,33 @@
                         <button id="guestBtn" class="btn btn-primary">Continue as Guest</button>
                     </div>
                 </div>
+
+                <!-- Email Verification Pending (shown after signup) -->
+                <div id="verify-email" class="tab-content">
+                    <div class="verify-email-screen">
+                        <div class="verify-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                            </svg>
+                        </div>
+                        <h4>Check your inbox</h4>
+                        <p class="verify-desc">We've sent a confirmation link to:</p>
+                        <p class="verify-email-addr" id="verifyEmailDisplay"></p>
+                        <p class="verify-sub">Click the link in the email to verify your account, then log in below.</p>
+
+                        <div class="verify-actions">
+                            <button id="resendBtn" class="btn btn-secondary">Resend Email</button>
+                            <button class="btn btn-primary switch-tab" data-tab="login">Go to Login</button>
+                        </div>
+
+                        <p class="resend-status" id="resendStatus"></p>
+
+                        <p class="verify-hint">Didn't get it? Check your spam folder or <span class="switch-tab link-style" data-tab="signup">try a different email</span>.</p>
+                    </div>
+                </div>
             </div>
         </section>
-        </main>
 
         <!-- Footer -->
         <footer class="footer">
@@ -168,6 +211,32 @@
                     <button type="button" id="acceptTerms" class="btn btn-primary" disabled>Continue</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Unverified Email Modal -->
+    <div id="unverifiedModal" class="modal-overlay">
+        <div class="terms-modal unverified-modal">
+            <div class="terms-header">
+                <div class="unverified-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <h2>Email Not Verified</h2>
+                <p class="terms-subtitle">Please verify your email before logging in</p>
+            </div>
+            <div class="unverified-body">
+                <p>A verification email was sent to <strong id="unverifiedEmailDisplay"></strong>.</p>
+                <p>Click the link in that email, then try logging in again.</p>
+            </div>
+            <div class="terms-footer" style="justify-content: center; gap: 12px;">
+                <button type="button" id="resendFromLoginBtn" class="btn btn-secondary">Resend Email</button>
+                <button type="button" id="closeUnverifiedModal" class="btn btn-primary">OK</button>
+            </div>
+            <p class="resend-status" id="resendStatusModal" style="text-align:center; margin-top: 8px;"></p>
         </div>
     </div>
 

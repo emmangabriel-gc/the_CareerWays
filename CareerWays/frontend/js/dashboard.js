@@ -12,9 +12,6 @@ const userRow = document.getElementById('userRow');
 const startAssessmentBtn = document.getElementById('startAssessmentBtn');
 const notification = document.getElementById('notification');
 
-const statAssessments = document.getElementById('statAssessments');
-const statRecs = document.getElementById('statRecs');
-
 // Nav
 const navDashboard = document.getElementById('navDashboard');
 const navAssessments = document.getElementById('navAssessments');
@@ -40,6 +37,9 @@ const settingsEmail = document.getElementById('settingsEmail');
 const settingsAvatar = document.getElementById('settingsAvatar');
 const settingsAccountType = document.getElementById('settingsAccountType');
 const settingsMemberSince = document.getElementById('settingsMemberSince');
+
+// Delete account button
+const deleteAccountBtn = document.querySelector('.cw-btn-danger');
 
 // View all link
 const viewAllLink = document.getElementById('viewAllLink');
@@ -107,6 +107,8 @@ function setupEventListeners() {
 
     if (viewAllLink) viewAllLink.addEventListener('click', (e) => { e.preventDefault(); switchView('assessments'); });
 
+    if (deleteAccountBtn) deleteAccountBtn.addEventListener('click', handleDeleteAccount);
+
     burgerBtn.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', closeSidebar);
 }
@@ -163,12 +165,6 @@ async function loadPreviousAssessments() {
         if (response.ok) {
             const data = await response.json();
             const assessments = data.assessments || [];
-
-            statAssessments.textContent = assessments.length;
-
-            let totalRecs = 0;
-            assessments.forEach(a => { totalRecs += (a.courses ? a.courses.length : 0); });
-            statRecs.textContent = totalRecs;
 
             if (assessments.length === 0) {
                 const msg = '<div class="cw-empty">No previous assessments yet. Start your first assessment!</div>';
@@ -270,6 +266,30 @@ async function deleteAssessment(assessmentId) {
     }
 }
 
+// ── Top Courses (system-wide) ─────────────────
+
+/**
+ * Derives an abbreviation from a course name.
+ * Skips common filler words so "Bachelor of Science in Computer Science" → "BSCS"
+ */
+function abbreviateCourseName(name) {
+    const skip = new Set(['of', 'in', 'and', 'the', 'for', 'a', 'an', 'with', 'to']);
+    return name
+        .split(/\s+/)
+        .filter(w => !skip.has(w.toLowerCase()))
+        .map(w => w.charAt(0).toUpperCase())
+        .join('');
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+
+
+
 // ── Start assessment ──────────────────────────
 function handleStartAssessment() {
     showNotification('Starting assessment...', 'info');
@@ -284,6 +304,52 @@ function handleLogout(e) {
         sessionStorage.clear();
         showNotification('Logged out successfully', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 800);
+    }
+}
+
+// ── Delete Account ────────────────────────────
+async function handleDeleteAccount() {
+    if (!confirm('Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data.')) {
+        return;
+    }
+
+    if (!confirm('This is your final warning. All your assessments, favorites, and profile data will be permanently deleted. Are you absolutely sure?')) {
+        return;
+    }
+
+    // Ask for password confirmation
+    const password = prompt('Please enter your password to confirm account deletion:');
+    if (!password || password.trim() === '') {
+        showNotification('Password is required to delete account', 'error');
+        return;
+    }
+
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/delete-account`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ password: password.trim() })
+        });
+
+        if (response.ok) {
+            showNotification('Account deleted successfully', 'success');
+            localStorage.clear();
+            sessionStorage.clear();
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        } else {
+            const errorData = await response.json();
+            showNotification(errorData.message || 'Failed to delete account', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        showNotification('An error occurred while deleting your account', 'error');
     }
 }
 

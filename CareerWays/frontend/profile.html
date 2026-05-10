@@ -1,84 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - CareerWays</title>
-    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/profile.css">
+
+    <!--PWA-->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff3b30">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CareerWays">
+    <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 </head>
 
+
+        <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+        });
+    }
+    </script>
+
+
 <body>
-    <div class="profile-page-container">
-        <header class="profile-header">
-            <div class="header-left">
-                <button id="backBtn" class="btn btn-secondary">Back</button>
-                <h1>Profile Settings</h1>
+
+    <header class="header">
+        <button class="back-btn" id="backBtn" aria-label="Go back">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <h1 class="header-title">Profile Settings</h1>
+    </header>
+
+    <main class="main">
+
+        <!-- Profile -->
+        <section class="section">
+            <h2 class="section-heading">Profile</h2>
+            <div class="card">
+                <div class="profile-field">
+                    <div class="field-label">Name</div>
+                    <div class="field-value" id="profileName">—</div>
+                </div>
+                <div class="divider"></div>
+                <div class="profile-field">
+                    <div class="field-label">Email</div>
+                    <div class="field-value" id="profileEmail">—</div>
+                </div>
             </div>
-            <div class="header-right">
-                <span id="userNameDisplay" class="user-name"></span>
-                <button id="logoutBtn" class="btn btn-secondary">Log Out</button>
+        </section>
+
+        <!-- Password -->
+        <section class="section">
+            <h2 class="section-heading">Password</h2>
+            <div class="card password-card">
+                <div class="pw-info">
+                    <div class="pw-title">Reset Password</div>
+                    <div class="pw-desc">Forgot Password? We'll be logging you out to proceed with this function</div>
+                </div>
+                <button class="reset-btn" id="resetPasswordBtn">Reset Password</button>
             </div>
-        </header>
+        </section>
 
-        <main class="profile-main">
-            <section class="settings-card">
-                <h3>Email & Name</h3>
-                <form id="profileForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Profile</button>
-                </form>
-            </section>
+    </main>
 
-            <section class="settings-card">
-                <h3>Reset Password</h3>
-                <form id="passwordForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="oldPassword">Current Password</label>
-                            <input type="password" id="oldPassword" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" required minlength="6">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Change Password</button>
-                </form>
-            </section>
-
-            <section class="settings-card danger-card">
-                <h3>Delete Account</h3>
-                <p>This permanently deletes your account and saved data.</p>
-                <form id="deleteForm">
-                    <div class="form-group">
-                        <label for="deletePassword">Confirm Password</label>
-                        <input type="password" id="deletePassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-danger">Delete Account</button>
-                </form>
-            </section>
-        </main>
+    <!-- Log Out -->
+    <div class="logout-bar">
+        <button class="logout-btn" id="logoutBtn">Log Out</button>
     </div>
 
     <div id="notification" class="notification"></div>
 
     <script src="js/profile.js"></script>
 </body>
-
 </html>

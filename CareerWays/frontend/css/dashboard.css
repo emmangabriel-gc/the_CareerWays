@@ -338,46 +338,24 @@ body::before {
 }
 
 .cw-welcome-text h3 {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.cw-welcome-text #welcomeName {
+    color: var(--primary);
+    font-weight: 700;
 }
 
 .cw-welcome-text p {
-    font-size: 13px;
+    font-size: 15px;
     color: #777;
+    line-height: 1.4;
 }
 
-.cw-stats-row {
-    display: flex;
-    gap: 10px;
-    flex-shrink: 0;
-}
-
-.cw-stat {
-    background: #f5f4f0;
-    border: 0.5px solid rgba(0, 0, 0, 0.08);
-    border-radius: 8px;
-    padding: 0.6rem 1rem;
-    text-align: center;
-    min-width: 72px;
-}
-
-.cw-stat-num {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1a1a1a;
-    line-height: 1;
-}
-
-.cw-stat-label {
-    font-size: 10px;
-    color: #999;
-    margin-top: 3px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
 
 /* ── Assessment CTA card ── */
 .cw-assessment-card {
@@ -691,6 +669,7 @@ body::before {
     flex-shrink: 0;
 }
 
+
 /* ── Overlay ── */
 .cw-overlay {
     display: none;
@@ -803,20 +782,7 @@ body::before {
         margin-bottom: 1rem;
     }
 
-    .cw-stats-row {
-        gap: 8px;
     }
-
-    .cw-stat {
-        padding: 0.5rem 0.75rem;
-        min-width: 60px;
-        font-size: 12px;
-    }
-
-    .cw-stat-num {
-        font-size: 18px;
-    }
-}
 
 @media (max-width: 480px) {
     .cw-sidebar {
@@ -851,20 +817,7 @@ body::before {
         margin-bottom: 0.75rem;
     }
 
-    .cw-stats-row {
-        gap: 6px;
-    }
-
-    .cw-stat {
-        padding: 0.4rem 0.5rem;
-        min-width: 50px;
-        font-size: 10px;
-    }
-
-    .cw-stat-num {
-        font-size: 16px;
-    }
-
+    
     .cw-assessments-grid,
     .cw-settings-grid {
         grid-template-columns: 1fr;

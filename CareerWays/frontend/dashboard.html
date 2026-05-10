@@ -9,7 +9,24 @@
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
+
+    <!--PWA-->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff3b30">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CareerWays">
+    <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 </head>
+
+        <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+        });
+    }
+    </script>
 
 <body>
     <div class="cw-layout">
@@ -91,30 +108,14 @@
 
                 <!-- DASHBOARD VIEW -->
                 <div id="viewDashboard" class="cw-view active">
-                    <h1 class="cw-page-title">Dashboard</h1>
 
-                    <!-- Welcome card -->
-                    <div class="cw-welcome-card">
-                        <div class="cw-welcome-text">
-                            <h3>Welcome back, <span id="welcomeName">User</span></h3>
-                            <p>Start exploring courses that match your interests, skills, and career goals.</p>
-                        </div>
-                        <div class="cw-stats-row">
-                            <div class="cw-stat">
-                                <div class="cw-stat-num" id="statAssessments">0</div>
-                                <div class="cw-stat-label">Assessments</div>
-                            </div>
-                            <div class="cw-stat">
-                                <div class="cw-stat-num" id="statRecs">0</div>
-                                <div class="cw-stat-label">Recommendations</div>
-                            </div>
-                            <div class="cw-stat">
-                                <div class="cw-stat-num" id="statFavs">0</div>
-                                <div class="cw-stat-label">Favorites</div>
-                            </div>
-                        </div>
+                    <!-- Welcome text -->
+                    <div class="cw-welcome-text" style="margin-bottom: 1.5rem;">
+                        <h3>Welcome back, <span id="welcomeName">User</span></h3>
+                        <p>Start exploring courses that match your interests, skills, and career goals.</p>
                     </div>
 
+                    
                     <!-- Start Assessment -->
                     <div class="cw-assessment-card">
                         <div>
@@ -125,6 +126,7 @@
                         <button class="cw-btn-primary" id="startAssessmentBtn">Start Assessment</button>
                     </div>
 
+                    
                     <!-- Recent assessments preview -->
                     <div class="cw-section">
                         <div class="cw-section-header">

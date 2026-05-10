@@ -1,0 +1,99 @@
+/* ─── Email Verification Screen ─────────────────────────────────────── */
+.verify-email-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 16px;
+    gap: 12px;
+}
+
+.verify-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-primary, #4a90d9) 12%, transparent);
+    color: var(--color-primary, #4a90d9);
+    margin-bottom: 8px;
+}
+
+.verify-email-screen h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.verify-desc {
+    margin: 0;
+    color: var(--color-muted, #666);
+    font-size: 0.9rem;
+}
+
+.verify-email-addr {
+    font-weight: 700;
+    font-size: 1rem;
+    word-break: break-all;
+    margin: 0;
+}
+
+.verify-sub {
+    font-size: 0.88rem;
+    color: var(--color-muted, #666);
+    margin: 0 0 8px;
+}
+
+.verify-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.verify-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+.resend-status {
+    font-size: 0.85rem;
+    min-height: 1.2em;
+    margin: 0;
+}
+
+.verify-hint {
+    font-size: 0.82rem;
+    color: var(--color-muted, #888);
+    margin: 0;
+}
+
+.link-style {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--color-primary, #4a90d9);
+}
+
+/* ─── Unverified Email Modal ─────────────────────────────────────────── */
+.unverified-modal {
+    max-width: 420px;
+}
+
+.unverified-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    color: var(--color-warning, #e08a00);
+}
+
+.unverified-body {
+    padding: 12px 24px 8px;
+    text-align: center;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text, #333);
+}
+
+.unverified-body p { margin: 4px 0; }

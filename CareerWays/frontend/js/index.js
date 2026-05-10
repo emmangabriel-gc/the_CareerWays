@@ -18,18 +18,51 @@ const termsCheckbox = document.getElementById('termsCheckbox');
 const acceptTermsBtn = document.getElementById('acceptTerms');
 const declineTermsBtn = document.getElementById('declineTerms');
 
+// Unverified modal elements
+const unverifiedModal = document.getElementById('unverifiedModal');
+const unverifiedEmailDisplay = document.getElementById('unverifiedEmailDisplay');
+const resendFromLoginBtn = document.getElementById('resendFromLoginBtn');
+const closeUnverifiedModal = document.getElementById('closeUnverifiedModal');
+const resendStatusModal = document.getElementById('resendStatusModal');
+
 // Pending Action Storage
 let pendingAction = null; // 'signup' or 'guest'
 let pendingFormData = null;
+
+// Track the last attempted login email (for resend from login screen)
+let lastLoginEmail = '';
+
+// Resend cooldown (prevent spam)
+let resendCooldown = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     setupTermsModal();
+    setupUnverifiedModal();
     checkAlreadyLoggedIn();
+    handleVerifyRedirect(); // Check if coming back from a verification link
 });
 
-// Setup Event Listeners
+// ─── Handle Redirect after Email Verification ──────────────────────────────
+// If the backend redirects to index.html?verified=true after the user clicks
+// the email link, show a success message and switch to the login tab.
+function handleVerifyRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === 'true') {
+        switchTab('login');
+        showNotification('Email verified! You can now log in.', 'success');
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    if (params.get('verified') === 'expired') {
+        switchTab('login');
+        showNotification('Verification link expired. Please request a new one.', 'error');
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+
+// ─── Setup Event Listeners ─────────────────────────────────────────────────
 function setupEventListeners() {
     // Tab switching
     tabBtns.forEach(btn => {
@@ -43,7 +76,6 @@ function setupEventListeners() {
         });
     });
 
-    // Form submissions
     // Login - no terms check required
     if (loginForm) {
         loginForm.addEventListener('submit', handleLoginSubmit);
@@ -80,59 +112,87 @@ function setupEventListeners() {
         });
     }
 
+    // Resend from verify-email tab
+    const resendBtn = document.getElementById('resendBtn');
+    if (resendBtn) {
+        resendBtn.addEventListener('click', () => handleResendVerification('resendStatus'));
+    }
+
     // Toggle password visibility
     setupPasswordToggle();
 }
 
-// Setup Terms Modal
+// ─── Setup Terms Modal ─────────────────────────────────────────────────────
 function setupTermsModal() {
     if (!termsCheckbox || !acceptTermsBtn || !declineTermsBtn) return;
 
-    // Handle checkbox change - enable Continue when checked
     termsCheckbox.addEventListener('change', () => {
         acceptTermsBtn.disabled = !termsCheckbox.checked;
     });
 
-    // Handle Continue button
     acceptTermsBtn.addEventListener('click', () => {
         if (termsCheckbox.checked) {
             acceptTerms();
         }
     });
 
-    // Handle Back button
     declineTermsBtn.addEventListener('click', () => {
         hideTermsModal();
         pendingAction = null;
         pendingFormData = null;
     });
 
-    // Close on overlay click
     termsModal.addEventListener('click', (e) => {
-        if (e.target === termsModal) {
-            // Don't close on overlay click - force explicit choice
-            return;
-        }
+        if (e.target === termsModal) return; // Force explicit choice
     });
 }
 
-// Show Terms Modal
+// ─── Setup Unverified Modal ────────────────────────────────────────────────
+function setupUnverifiedModal() {
+    if (!unverifiedModal) return;
+
+    if (closeUnverifiedModal) {
+        closeUnverifiedModal.addEventListener('click', hideUnverifiedModal);
+    }
+
+    if (resendFromLoginBtn) {
+        resendFromLoginBtn.addEventListener('click', () => {
+            handleResendVerification('resendStatusModal');
+        });
+    }
+
+    unverifiedModal.addEventListener('click', (e) => {
+        if (e.target === unverifiedModal) hideUnverifiedModal();
+    });
+}
+
+function showUnverifiedModal(email) {
+    lastLoginEmail = email;
+    if (unverifiedEmailDisplay) unverifiedEmailDisplay.textContent = email;
+    if (resendStatusModal) resendStatusModal.textContent = '';
+    if (unverifiedModal) {
+        unverifiedModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function hideUnverifiedModal() {
+    if (unverifiedModal) {
+        unverifiedModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+// ─── Show Terms Modal ──────────────────────────────────────────────────────
 function showTermsModal() {
     if (termsModal) {
         termsModal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        
-        // Reset checkbox and button state
-        if (termsCheckbox) {
-            termsCheckbox.checked = false;
-        }
-        if (acceptTermsBtn) {
-            acceptTermsBtn.disabled = true;
-        }
+        if (termsCheckbox) termsCheckbox.checked = false;
+        if (acceptTermsBtn) acceptTermsBtn.disabled = true;
     }
 }
 
-// Hide Terms Modal
 function hideTermsModal() {
     if (termsModal) {
         termsModal.classList.remove('active');
@@ -140,17 +200,15 @@ function hideTermsModal() {
     }
 }
 
-// Check if user has accepted terms (stored in session)
+// ─── Terms helpers ─────────────────────────────────────────────────────────
 function hasAcceptedTerms() {
     return sessionStorage.getItem('termsAccepted') === 'true';
 }
 
-// Accept Terms and proceed with pending action
 function acceptTerms() {
     sessionStorage.setItem('termsAccepted', 'true');
     hideTermsModal();
-    
-    // Execute pending action
+
     switch (pendingAction) {
         case 'signup':
             if (pendingFormData) {
@@ -165,80 +223,66 @@ function acceptTerms() {
             handleGuestAccessSubmit();
             break;
     }
-    
+
     pendingAction = null;
     pendingFormData = null;
 }
 
-// Setup Password Toggle
+// ─── Password Toggle ───────────────────────────────────────────────────────
 function setupPasswordToggle() {
     const toggleButtons = document.querySelectorAll('.toggle-password');
-
     toggleButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const passwordInput = btn.parentElement.querySelector('input');
             const isPassword = passwordInput.type === 'password';
-
             passwordInput.type = isPassword ? 'text' : 'password';
             btn.textContent = isPassword ? 'Hide' : 'Show';
         });
     });
 }
 
-// Tab Switching
+// ─── Tab Switching ─────────────────────────────────────────────────────────
 function switchTab(tabName) {
-    // Hide all content
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => {
-        content.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tabBtns.forEach(btn => btn.classList.remove('active'));
 
-    // Deactivate all tabs
-    tabBtns.forEach(btn => {
-        btn.classList.remove('active');
-    });
-
-    // Show selected content
     const selectedContent = document.getElementById(tabName);
-    if (selectedContent) {
-        selectedContent.classList.add('active');
-    }
+    if (selectedContent) selectedContent.classList.add('active');
 
-    // Activate selected tab
-    const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
-    if (selectedBtn) {
-        selectedBtn.classList.add('active');
-    }
+    // Only highlight the button if it exists in the nav bar
+    const selectedBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    if (selectedBtn) selectedBtn.classList.add('active');
 }
 
-// Handle Login Submit
+// ─── Handle Login Submit ───────────────────────────────────────────────────
 async function handleLoginSubmit(e) {
     e.preventDefault();
-    const email = document.getElementById('login-email').value;
+    const email = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
+    lastLoginEmail = email;
 
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            // Store token and user info
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             localStorage.setItem('userType', 'registered');
 
             showNotification('Login successful!', 'success');
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1000);
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+
+        } else if (response.status === 403 && data.code === 'EMAIL_NOT_VERIFIED') {
+            // Account exists but email not verified — show the unverified modal
+            showUnverifiedModal(email);
+
         } else {
             showNotification(data.message || 'Login failed', 'error');
         }
@@ -248,20 +292,17 @@ async function handleLoginSubmit(e) {
     }
 }
 
-// Handle Sign Up Submit
+// ─── Handle Sign Up Submit ─────────────────────────────────────────────────
 async function handleSignupSubmit(e) {
-    const name = document.getElementById('signup-name').value;
-    const email = document.getElementById('signup-email').value;
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
     const password = document.getElementById('signup-password').value;
     const confirmPassword = document.getElementById('signup-confirm').value;
 
-    // Validate passwords match
     if (password !== confirmPassword) {
         showNotification('Passwords do not match', 'error');
         return;
     }
-
-    // Validate password strength
     if (password.length < 6) {
         showNotification('Password must be at least 6 characters long', 'error');
         return;
@@ -270,25 +311,23 @@ async function handleSignupSubmit(e) {
     try {
         const response = await fetch(`${API_BASE_URL}/auth/signup`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            showNotification('Account created successfully! Logging in...', 'success');
+            // Show the verify-email tab instead of redirecting
+            lastLoginEmail = email;
+            const emailDisplay = document.getElementById('verifyEmailDisplay');
+            if (emailDisplay) emailDisplay.textContent = email;
 
-            // Auto login after signup
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            localStorage.setItem('userType', 'registered');
+            showNotification('Account created! Please check your email to verify.', 'success');
+            switchTab('verify-email');
 
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
+            // Clear signup form
+            signupForm.reset();
         } else {
             showNotification(data.message || 'Sign up failed', 'error');
         }
@@ -298,35 +337,86 @@ async function handleSignupSubmit(e) {
     }
 }
 
-// Handle Guest Access Submit
+// ─── Resend Verification Email ─────────────────────────────────────────────
+async function handleResendVerification(statusElementId) {
+    const statusEl = document.getElementById(statusElementId);
+
+    if (resendCooldown) {
+        if (statusEl) {
+            statusEl.textContent = 'Please wait a moment before requesting again.';
+            statusEl.style.color = 'var(--color-warning, #e08a00)';
+        }
+        return;
+    }
+
+    if (!lastLoginEmail) {
+        if (statusEl) {
+            statusEl.textContent = 'No email address found. Please sign up again.';
+            statusEl.style.color = 'var(--color-error, #c0392b)';
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: lastLoginEmail })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (statusEl) {
+                statusEl.textContent = `Verification email resent to ${lastLoginEmail}.`;
+                statusEl.style.color = 'var(--color-success, #27ae60)';
+            }
+            // Start 60-second cooldown
+            resendCooldown = true;
+            setTimeout(() => {
+                resendCooldown = false;
+                if (statusEl) statusEl.textContent = '';
+            }, 60000);
+        } else {
+            if (statusEl) {
+                statusEl.textContent = data.message || 'Failed to resend. Please try again.';
+                statusEl.style.color = 'var(--color-error, #c0392b)';
+            }
+        }
+    } catch (error) {
+        console.error('Resend error:', error);
+        if (statusEl) {
+            statusEl.textContent = 'Network error. Please try again.';
+            statusEl.style.color = 'var(--color-error, #c0392b)';
+        }
+    }
+}
+
+// ─── Guest Access ──────────────────────────────────────────────────────────
 function handleGuestAccessSubmit() {
-    // Set guest session
     localStorage.removeItem('token');
     localStorage.setItem('userType', 'guest');
     localStorage.setItem('guestId', 'guest_' + Date.now());
 
     showNotification('Continuing as guest...', 'info');
-    setTimeout(() => {
-        window.location.href = 'dashboard.html';
-    }, 1000);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
 }
 
-// Check if already logged in
+// ─── Already Logged In ─────────────────────────────────────────────────────
 function checkAlreadyLoggedIn() {
     const token = localStorage.getItem('token');
     if (token) {
-        // User is already logged in, redirect to dashboard
         window.location.href = 'dashboard.html';
     }
 }
 
-// Show Notification
+// ─── Notification ──────────────────────────────────────────────────────────
 function showNotification(message, type = 'info') {
     notification.textContent = message;
     notification.className = `notification ${type}`;
     notification.style.display = 'block';
-    notification.style.opacity = '1';        // Reset opacity
-    notification.style.visibility = 'visible'; // Reset visibility
+    notification.style.opacity = '1';
+    notification.style.visibility = 'visible';
 
     setTimeout(() => {
         notification.classList.add('hidden');
