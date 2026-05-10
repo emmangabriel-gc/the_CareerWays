@@ -7,3 +7,7 @@ PyJWT
 werkzeug
 psycopg2-binary
 gunicorn
+numpy
+scikit-learn
+nltk
+scipy
