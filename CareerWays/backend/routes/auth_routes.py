@@ -2,7 +2,7 @@
 Authentication Routes for CareerWays
 """
 
-from flask import Blueprint, request, jsonify, redirect, current_app
+from flask import Blueprint, request, jsonify, redirect, copy_current_request_context
 from app import db, mail
 from models import User
 from flask_mail import Message
@@ -15,6 +15,20 @@ import random
 import string
 
 auth_bp = Blueprint('auth', __name__)
+
+
+def get_public_backend_url():
+    """Public HTTPS base for API links in emails (no trailing slash)."""
+    explicit = os.getenv('BACKEND_URL', '').strip().rstrip('/')
+    if explicit:
+        return explicit
+    domain = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
+    if domain:
+        if domain.startswith('http'):
+            return domain.rstrip('/')
+        return f'https://{domain}'.rstrip('/')
+    return 'https://thecareerways-production.up.railway.app'
+
 
 JWT_SECRET = os.getenv(
     'JWT_SECRET_KEY', 'your-secret-key-change-in-production')
@@ -53,7 +67,7 @@ def send_verification_email(email, token, user_name):
                     <h2 style="color: #333;">Welcome to CareerWays, {user_name}!</h2>
                     <p>Thanks for signing up. Please verify your email address by clicking the button below:</p>
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://thecareerways-production.up.railway.app/api/auth/confirm-email?token={token}"
+                        <a href="{get_public_backend_url()}/api/auth/confirm-email?token={token}"
                            style="background-color: #4a90d9; color: white; padding: 14px 28px;
                                   border-radius: 6px; text-decoration: none; font-weight: bold;
                                   display: inline-block;">
@@ -139,9 +153,12 @@ def signup():
         db.session.commit()
 
         user_name = user.name
-        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, user_name))
-    
-        t.start()
+
+        @copy_current_request_context
+        def send_verification_async():
+            send_verification_email(email, verification_token, user_name)
+
+        threading.Thread(target=send_verification_async).start()
 
         return jsonify({'message': 'Account created. Please check your email to verify your account.'}), 200
 
@@ -311,9 +328,12 @@ def forgot_password():
         db.session.commit()
 
         user_name = user.name
-        t = threading.Thread(target=lambda: send_otp_email(email, otp, user_name))
-    
-        t.start()
+
+        @copy_current_request_context
+        def send_otp_async():
+            send_otp_email(email, otp, user_name)
+
+        threading.Thread(target=send_otp_async).start()
 
         return jsonify({'message': 'OTP has been sent to your email', 'email': email}), 200
 

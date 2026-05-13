@@ -1,6 +1,6 @@
 // forgot-password.js - Password Reset using CareerWays Backend
 
-const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
+const API_BASE_URL = window.__CW_API_BASE__;
 
 // DOM Elements
 const notification = document.getElementById('notification');

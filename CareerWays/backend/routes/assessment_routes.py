@@ -5,13 +5,23 @@ Assessment Routes for CareerWays
 from flask import Blueprint, request, jsonify
 from app import db
 from models import User, Assessment, AssessmentDetail, Course
-from ml_engine import nlp_engine, sentiment_analyzer, RecommendationEngine
 from routes.auth_routes import verify_token
 import uuid
 from datetime import datetime
 import json
 
 assessment_bp = Blueprint('assessment', __name__)
+
+_ml_cache = None
+
+
+def _get_ml():
+    """Load NLP stack only when needed (keeps /api/auth/* startup light on Railway)."""
+    global _ml_cache
+    if _ml_cache is None:
+        from ml_engine import nlp_engine, sentiment_analyzer, RecommendationEngine
+        _ml_cache = (nlp_engine, sentiment_analyzer, RecommendationEngine)
+    return _ml_cache
 
 
 def get_all_courses():
@@ -50,6 +60,8 @@ def analyze_response():
 
         if len(user_response) < 20:
             return jsonify({'message': 'Response too short. Please provide more details.'}), 400
+
+        nlp_engine, sentiment_analyzer, RecommendationEngine = _get_ml()
 
         # Get current user if logged in
         current_user = None

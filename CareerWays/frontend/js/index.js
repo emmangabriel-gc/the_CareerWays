@@ -1,7 +1,7 @@
 // index.js - Index page functionality
 
 // API Base URL
-const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
+const API_BASE_URL = window.__CW_API_BASE__;
 
 // DOM Elements
 const loginForm = document.getElementById('loginForm');

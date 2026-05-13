@@ -1,6 +1,6 @@
 // dashboard.js - Dashboard page functionality
 
-const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
+const API_BASE_URL = window.__CW_API_BASE__;
 // DOM Elements
 const welcomeName = document.getElementById('welcomeName');
 const sidebarUserName = document.getElementById('sidebarUserName');

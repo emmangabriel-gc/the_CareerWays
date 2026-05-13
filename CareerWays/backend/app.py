@@ -8,13 +8,10 @@ from flask_cors import CORS
 from flask_mail import Mail
 from flask import Flask
 import os
-import socket
 import sys
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
-from urllib.parse import urlparse
-
 # CRITICAL: Register this module as 'app' BEFORE any other imports
 # This resolves circular import issues in models/__init__.py
 sys.modules['app'] = sys.modules[__name__]
@@ -37,9 +34,27 @@ def get_local_sqlite_uri():
     return f"sqlite:///{db_path}"
 
 
+def _parse_cors_origins():
+    """Comma-separated CORS_ORIGINS, else FRONTEND_URL, else production default."""
+    raw = os.getenv('CORS_ORIGINS', '').strip()
+    if not raw:
+        raw = os.getenv('FRONTEND_URL', '').strip()
+    if raw:
+        return [
+            o.strip().rstrip('/')
+            for o in raw.split(',')
+            if o.strip()
+        ]
+    return ['https://the-career-ways.vercel.app']
+
+
 def resolve_database_uri():
     """Resolve database URI with smart fallback to SQLite."""
     configured_uri = os.getenv('DATABASE_URL', '').strip()
+    # Railway / Heroku-style URLs use postgres:// which SQLAlchemy rejects
+    if configured_uri.startswith('postgres://'):
+        configured_uri = configured_uri.replace(
+            'postgres://', 'postgresql://', 1)
 
     if not configured_uri:
         print("[CareerWays] No DATABASE_URL configured. Using SQLite.")
@@ -63,11 +78,14 @@ def create_app():
     database_uri = resolve_database_uri()
     app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    engine_opts = {
         'pool_pre_ping': True,
         'pool_recycle': 3600,
-        'connect_args': {'connect_timeout': 10}
     }
+    # sqlite3 does not accept PostgreSQL-style connect_args
+    if not database_uri.startswith('sqlite'):
+        engine_opts['connect_args'] = {'connect_timeout': 10}
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = engine_opts
     app.config['JWT_SECRET_KEY'] = os.getenv(
         'JWT_SECRET_KEY', 'your-secret-key-change-in-production')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
@@ -87,11 +105,12 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     
+    cors_origins = _parse_cors_origins()
     CORS(app, supports_credentials=True, resources={r"/api/*": {
-    "origins": "https://the-career-ways.vercel.app",
-    "allow_headers": ["Content-Type", "Authorization"],
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-}})
+        "origins": cors_origins,
+        "allow_headers": ["Content-Type", "Authorization"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    }})
 
     # Register blueprints
     from routes.auth_routes import auth_bp
@@ -127,4 +146,5 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    port = int(os.getenv('PORT', '5000'))
+    app.run(debug=False, host='0.0.0.0', port=port)

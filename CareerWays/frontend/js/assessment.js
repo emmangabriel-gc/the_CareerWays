@@ -1,6 +1,6 @@
 // assessment.js - Assessment page functionality
 
-const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
+const API_BASE_URL = window.__CW_API_BASE__;
 
 // DOM Elements
 const backBtn = document.getElementById('backBtn');
