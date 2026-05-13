@@ -1,6 +1,6 @@
 // assessment.js - Assessment page functionality
 
-const API_BASE_URL = 'https://careerways.onrender.com/api';
+const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
 
 // DOM Elements
 const backBtn = document.getElementById('backBtn');
