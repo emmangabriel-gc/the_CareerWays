@@ -220,7 +220,9 @@ def resend_verification():
         user.verification_token_expires = datetime.utcnow() + timedelta(hours=24)
         db.session.commit()
 
-        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, user.name))
+        user_name = user.name
+        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, user_name))
+    
         t.start()
 
         return jsonify({'message': 'Verification email resent.'}), 200
@@ -308,7 +310,9 @@ def forgot_password():
         user.password_reset_otp_expires = otp_expires
         db.session.commit()
 
-        t = threading.Thread(target=lambda: send_otp_email(email, otp, user.name))
+        user_name = user.name
+        t = threading.Thread(target=lambda: send_otp_email(email, otp, user_name))
+    
         t.start()
 
         return jsonify({'message': 'OTP has been sent to your email', 'email': email}), 200
@@ -388,7 +392,7 @@ def reset_password():
         t = threading.Thread(target=lambda: mail.send(Message(
             subject='CareerWays - Password Changed Successfully',
             recipients=[email],
-            html=f"<p>Hi {user.name}, your password has been reset successfully.</p>"
+            html=f"<p>Hi {user_name}, your password has been reset successfully.</p>"
         )))
         t.start()
 
