@@ -34,11 +34,19 @@ def get_local_sqlite_uri():
     return f"sqlite:///{db_path}"
 
 
+def _strip_env_quotes(value):
+    """Railway/UI sometimes stores values wrapped in quotes."""
+    s = (value or '').strip()
+    if len(s) >= 2 and s[0] == s[-1] and s[0] in ('"', "'"):
+        s = s[1:-1].strip()
+    return s
+
+
 def _parse_cors_origins():
     """Comma-separated CORS_ORIGINS, else FRONTEND_URL, else production default."""
-    raw = os.getenv('CORS_ORIGINS', '').strip()
+    raw = _strip_env_quotes(os.getenv('CORS_ORIGINS', ''))
     if not raw:
-        raw = os.getenv('FRONTEND_URL', '').strip()
+        raw = _strip_env_quotes(os.getenv('FRONTEND_URL', ''))
     if raw:
         return [
             o.strip().rstrip('/')
@@ -133,16 +141,32 @@ def create_app():
     cors_origins = _merge_cors_origins()
     cors_origin_set = {o.rstrip('/') for o in cors_origins}
 
+    def _origin_allowed(origin):
+        if not origin:
+            return False
+        key = origin.strip().rstrip('/')
+        if key in cors_origin_set:
+            return True
+        # Vercel preview deployments (*.vercel.app)
+        if key.startswith('https://') and '.vercel.app' in key:
+            host = key.split('://', 1)[1].split('/', 1)[0]
+            if host.endswith('.vercel.app'):
+                return True
+        return False
+
     def _apply_cors_headers(resp):
         origin = (request.headers.get('Origin') or '').strip()
-        if not origin:
-            return resp
-        key = origin.rstrip('/')
-        if key not in cors_origin_set:
+        if not origin or not _origin_allowed(origin):
             return resp
         resp.headers['Access-Control-Allow-Origin'] = origin
         resp.headers['Access-Control-Allow-Credentials'] = 'true'
-        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        req_headers = request.headers.get('Access-Control-Request-Headers')
+        if req_headers:
+            resp.headers['Access-Control-Allow-Headers'] = req_headers
+        else:
+            resp.headers['Access-Control-Allow-Headers'] = (
+                'Content-Type, Authorization'
+            )
         resp.headers['Access-Control-Allow-Methods'] = (
             'GET, POST, PUT, DELETE, OPTIONS'
         )
@@ -153,10 +177,13 @@ def create_app():
     def _cors_preflight():
         if request.method != 'OPTIONS':
             return None
-        origin = (request.headers.get('Origin') or '').strip()
-        if origin.rstrip('/') not in cors_origin_set:
+        if not request.path.startswith('/api/'):
             return None
-        r = app.make_response('', 204)
+        origin = (request.headers.get('Origin') or '').strip()
+        if not _origin_allowed(origin):
+            return None
+        # 200 avoids strict clients/proxies that mishandle empty 204 preflights
+        r = app.make_response('', 200)
         return _apply_cors_headers(r)
 
     @app.after_request
