@@ -441,9 +441,26 @@
     }
   </style>
 
+    <!--PWA-->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff3b30">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CareerWays">
+    <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 
 
 </head>
+
+        <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+        });
+    }
+    </script>
+
 
 <body>
 
