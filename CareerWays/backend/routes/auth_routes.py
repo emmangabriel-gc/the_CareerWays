@@ -58,7 +58,7 @@ def send_verification_email(email, token, user_name):
                     <p>Thanks for signing up. Please verify your email address by clicking the button below:</p>
 
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://careerways.onrender.com/api/auth/confirm-email?token={token}"
+                        href="https://thecareerways-production.up.railway.app/api/auth/confirm-email?token={token}"
                            style="background-color: #4a90d9; color: white; padding: 14px 28px;
                                   border-radius: 6px; text-decoration: none; font-weight: bold;
                                   display: inline-block;">
