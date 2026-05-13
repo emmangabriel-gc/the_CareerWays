@@ -1,6 +1,6 @@
 // favorites.js - Favorites page functionality
 
-const API_BASE_URL = 'https://careerways.onrender.com/api';
+const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
 
 // DOM
 const sidebarAvatar      = document.getElementById('sidebarAvatar');
