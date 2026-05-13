@@ -2,6 +2,28 @@
 Authentication Routes for CareerWays
 """
 
+import threading
+
+def send_otp_async(app_context, email, otp, user_name):
+    with app_context:
+        send_otp_email(email, otp, user_name)
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    # ... existing code ...
+    
+    # Send email in background - don't wait for it
+    from flask import current_app
+    ctx = current_app.app_context()
+    t = threading.Thread(target=send_otp_async, args=(ctx, email, otp, user.name))
+    t.start()
+    
+    return jsonify({
+        'message': 'OTP has been sent to your email',
+        'email': email
+    }), 200
+
+
 from flask import Blueprint, request, jsonify, redirect
 from app import db, mail
 from models import User
