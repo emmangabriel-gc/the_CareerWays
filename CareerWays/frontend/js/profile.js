@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://careerways.onrender.com/api';
+const API_BASE_URL = 'https://thecareerways-production.up.railway.app/api';
 
 const backBtn = document.getElementById('backBtn');
 const logoutBtn = document.getElementById('logoutBtn');
