@@ -6,7 +6,7 @@ AI-Powered College Course Recommendation System
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_mail import Mail
-from flask import Flask
+from flask import Flask, request
 import os
 import sys
 from pathlib import Path
@@ -46,6 +46,25 @@ def _parse_cors_origins():
             if o.strip()
         ]
     return ['https://the-career-ways.vercel.app']
+
+
+def _merge_cors_origins():
+    """Env-based origins plus known production frontend (Railway env mistakes won't drop Vercel)."""
+    parsed = _parse_cors_origins()
+    defaults = [
+        'https://the-career-ways.vercel.app',
+        'http://localhost:5500',
+        'http://127.0.0.1:5500',
+    ]
+    out = []
+    seen = set()
+    for o in list(parsed) + defaults:
+        o = (o or '').strip().rstrip('/')
+        if not o or o in seen:
+            continue
+        seen.add(o)
+        out.append(o)
+    return out
 
 
 def resolve_database_uri():
@@ -110,8 +129,43 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     mail.init_app(app)
-    
-    cors_origins = _parse_cors_origins()
+
+    cors_origins = _merge_cors_origins()
+    cors_origin_set = {o.rstrip('/') for o in cors_origins}
+
+    def _apply_cors_headers(resp):
+        origin = (request.headers.get('Origin') or '').strip()
+        if not origin:
+            return resp
+        key = origin.rstrip('/')
+        if key not in cors_origin_set:
+            return resp
+        resp.headers['Access-Control-Allow-Origin'] = origin
+        resp.headers['Access-Control-Allow-Credentials'] = 'true'
+        resp.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        resp.headers['Access-Control-Allow-Methods'] = (
+            'GET, POST, PUT, DELETE, OPTIONS'
+        )
+        resp.headers['Access-Control-Max-Age'] = '86400'
+        return resp
+
+    @app.before_request
+    def _cors_preflight():
+        if request.method != 'OPTIONS':
+            return None
+        origin = (request.headers.get('Origin') or '').strip()
+        if origin.rstrip('/') not in cors_origin_set:
+            return None
+        r = app.make_response('', 204)
+        return _apply_cors_headers(r)
+
+    @app.after_request
+    def _cors_after(resp):
+        # Flask-CORS can miss error paths; always attach when Origin is allowed
+        if resp.headers.get('Access-Control-Allow-Origin'):
+            return resp
+        return _apply_cors_headers(resp)
+
     CORS(
         app,
         origins=cors_origins,
