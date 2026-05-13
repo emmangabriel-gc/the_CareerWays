@@ -1,12 +1,25 @@
 /**
  * API base URL for the Flask backend.
- * Override per deployment: add before this file in HTML:
- *   <script>window.__CW_API_BASE__ = 'https://your-service.up.railway.app/api';</script>
+ * On Vercel we use same-origin "/api" so the browser never hits cross-origin CORS;
+ * vercel.json rewrites /api/* to Railway.
+ * Override: <script>window.__CW_API_BASE__ = 'https://…/api';</script> before this file.
  */
 (function () {
     if (typeof window === 'undefined') return;
-    if (!window.__CW_API_BASE__) {
-        window.__CW_API_BASE__ =
-            'https://thecareerways-production.up.railway.app/api';
-    }
+    if (window.__CW_API_BASE__) return;
+    var h = typeof location !== 'undefined' ? location.hostname : '';
+    var isLocal =
+        !h ||
+        h === 'localhost' ||
+        h === '127.0.0.1' ||
+        /^192\.168\./.test(h) ||
+        /^10\./.test(h);
+    // Vercel (and any HTTPS deploy with /api rewrite) → same-origin proxy, no CORS
+    var useRelativeApi =
+        typeof location !== 'undefined' &&
+        location.protocol === 'https:' &&
+        !isLocal;
+    window.__CW_API_BASE__ = useRelativeApi
+        ? '/api'
+        : 'https://thecareerways-production.up.railway.app/api';
 })();

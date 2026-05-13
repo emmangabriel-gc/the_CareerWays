@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careerways-v2';
+const CACHE_NAME = 'careerways-v3';
 
 const ASSETS = [
   '/index.html',
@@ -62,8 +62,14 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   const scopeOrigin = new URL(self.registration.scope).origin;
 
-  // Cross-origin (e.g. Railway API): do not call respondWith — avoids SW+CORS failures
+  // Cross-origin: do not intercept
   if (url.origin !== scopeOrigin) {
+    return;
+  }
+
+  // Same-origin /api/* is proxied to Railway — never cache (GET/POST/OPTIONS)
+  if (url.pathname.startsWith('/api/')) {
+    e.respondWith(fetch(e.request));
     return;
   }
 
