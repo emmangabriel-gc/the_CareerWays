@@ -81,6 +81,7 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv(
         'MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+app.config['MAIL_TIMEOUT'] = 10
 
     # Initialize extensions
     db.init_app(app)
