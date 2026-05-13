@@ -138,7 +138,9 @@ def signup():
         db.session.add(user)
         db.session.commit()
 
-        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, name))
+        user_name = user.name
+        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, user_name))
+    
         t.start()
 
         return jsonify({'message': 'Account created. Please check your email to verify your account.'}), 200
@@ -382,6 +384,7 @@ def reset_password():
         user.password_reset_expires = None
         db.session.commit()
 
+        user_name = user.name
         t = threading.Thread(target=lambda: mail.send(Message(
             subject='CareerWays - Password Changed Successfully',
             recipients=[email],
