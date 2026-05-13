@@ -2,12 +2,13 @@
 Authentication Routes for CareerWays
 """
 
-from flask import Blueprint, request, jsonify, redirect
+from flask import Blueprint, request, jsonify, redirect, current_app
 from app import db, mail
 from models import User
 from flask_mail import Message
 import jwt
 import os
+import threading
 from datetime import datetime, timedelta
 import uuid
 import random
@@ -22,7 +23,6 @@ JWT_EXPIRATION = 30  # days
 
 
 def create_token(user):
-    """Create JWT token for user"""
     payload = {
         'user_id': user.id,
         'email': user.email,
@@ -33,7 +33,6 @@ def create_token(user):
 
 
 def verify_token(token):
-    """Verify JWT token"""
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
         return payload
@@ -43,11 +42,8 @@ def verify_token(token):
         return {'error': 'Invalid token'}
 
 
-# ── Helper: send verification email ──────────────────────────────────────────
 def send_verification_email(email, token, user_name):
-    """Send account verification link to user's email"""
-    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5500')
-
+    frontend_url = os.getenv('FRONTEND_URL', 'https://the-career-ways.vercel.app')
     try:
         subject = 'CareerWays – Please verify your email'
         html = f"""
@@ -56,19 +52,16 @@ def send_verification_email(email, token, user_name):
                 <div style="background-color: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Welcome to CareerWays, {user_name}!</h2>
                     <p>Thanks for signing up. Please verify your email address by clicking the button below:</p>
-
                     <div style="text-align: center; margin: 30px 0;">
-                        <a href="http://localhost:5000/api/auth/confirm-email?token={token}"
+                        <a href="https://thecareerways-production.up.railway.app/api/auth/confirm-email?token={token}"
                            style="background-color: #4a90d9; color: white; padding: 14px 28px;
                                   border-radius: 6px; text-decoration: none; font-weight: bold;
                                   display: inline-block;">
                             Verify My Email
                         </a>
                     </div>
-
                     <p style="color: #666;">This link expires in <strong>24 hours</strong>.</p>
                     <p style="color: #666;">If you didn't create a CareerWays account, you can safely ignore this email.</p>
-
                     <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
                     <p style="color: #999; font-size: 12px;">CareerWays – AI-Powered Course Guidance</p>
                 </div>
@@ -83,12 +76,43 @@ def send_verification_email(email, token, user_name):
         return False
 
 
+def generate_otp():
+    return ''.join(random.choices(string.digits, k=6))
+
+
+def send_otp_email(email, otp, user_name):
+    try:
+        subject = 'CareerWays - Password Reset OTP'
+        html = f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
+                <div style="background-color: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">Password Reset Request</h2>
+                    <p>Hi {user_name},</p>
+                    <p>We received a request to reset your password. Use the OTP below to proceed:</p>
+                    <div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
+                        <h1 style="color: #007bff; letter-spacing: 5px; margin: 0;">{otp}</h1>
+                    </div>
+                    <p style="color: #666;">This OTP is valid for 10 minutes. Do not share it with anyone.</p>
+                    <p style="color: #666;">If you didn't request a password reset, please ignore this email.</p>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                    <p style="color: #999; font-size: 12px;">CareerWays - AI-Powered Course Guidance</p>
+                </div>
+            </body>
+        </html>
+        """
+        msg = Message(subject=subject, recipients=[email], html=html)
+        mail.send(msg)
+        return True
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        return False
+
+
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
-    """Register a new user and send verification email"""
     try:
         data = request.get_json()
-
         if not data or not all(k in data for k in ['name', 'email', 'password']):
             return jsonify({'message': 'Missing required fields'}), 400
 
@@ -102,11 +126,9 @@ def signup():
         if User.query.filter_by(email=email).first():
             return jsonify({'message': 'Email already registered'}), 409
 
-        # Generate email verification token (expires in 24 hours)
         verification_token = str(uuid.uuid4())
         verification_expires = datetime.utcnow() + timedelta(hours=24)
 
-        # Create user — NOT verified yet
         user = User(name=name, email=email)
         user.set_password(password)
         user.is_verified = False
@@ -116,14 +138,10 @@ def signup():
         db.session.add(user)
         db.session.commit()
 
-        # Send verification email
-        if not send_verification_email(email, verification_token, name):
-            print(f"[CareerWays] Warning: verification email failed for {email}")
+        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, name))
+        t.start()
 
-        # Do NOT return a JWT token — user must verify first
-        return jsonify({
-            'message': 'Account created. Please check your email to verify your account.'
-        }), 200
+        return jsonify({'message': 'Account created. Please check your email to verify your account.'}), 200
 
     except Exception as e:
         db.session.rollback()
@@ -132,10 +150,8 @@ def signup():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """Login user — requires verified email"""
     try:
         data = request.get_json()
-
         if not data or not all(k in data for k in ['email', 'password']):
             return jsonify({'message': 'Missing email or password'}), 400
 
@@ -144,13 +160,9 @@ def login():
 
         user = User.query.filter_by(email=email).first()
 
-        print(
-            f"Email: {email}, User found: {user is not None}, Password check: {user.check_password(password) if user else 'N/A'}")
-
         if not user or not user.check_password(password):
             return jsonify({'message': 'Invalid email or password'}), 401
 
-        # Block login if email not verified
         if not user.is_verified:
             return jsonify({
                 'message': 'Please verify your email before logging in.',
@@ -158,12 +170,7 @@ def login():
             }), 403
 
         token = create_token(user)
-
-        return jsonify({
-            'message': 'Login successful',
-            'token': token,
-            'user': user.to_dict()
-        }), 200
+        return jsonify({'message': 'Login successful', 'token': token, 'user': user.to_dict()}), 200
 
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
@@ -171,8 +178,7 @@ def login():
 
 @auth_bp.route('/confirm-email', methods=['GET'])
 def confirm_email():
-    """Verify user's email via token link — redirects back to frontend"""
-    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5500')
+    frontend_url = os.getenv('FRONTEND_URL', 'https://the-career-ways.vercel.app')
     token = request.args.get('token', '').strip()
 
     if not token:
@@ -186,7 +192,6 @@ def confirm_email():
     if user.verification_token_expires < datetime.utcnow():
         return redirect(f"{frontend_url}/index.html?verified=expired")
 
-    # Mark as verified and clear the token
     user.is_verified = True
     user.verification_token = None
     user.verification_token_expires = None
@@ -197,27 +202,24 @@ def confirm_email():
 
 @auth_bp.route('/resend-verification', methods=['POST'])
 def resend_verification():
-    """Resend verification email to an unverified account"""
     try:
         data = request.get_json()
-
         if not data or 'email' not in data:
             return jsonify({'message': 'Email is required'}), 400
 
         email = data['email'].strip().lower()
         user = User.query.filter_by(email=email).first()
 
-        # Don't reveal whether the account exists
         if not user or user.is_verified:
             return jsonify({'message': 'If an unverified account exists, a new email has been sent.'}), 200
 
-        # Generate a fresh token
         verification_token = str(uuid.uuid4())
         user.verification_token = verification_token
         user.verification_token_expires = datetime.utcnow() + timedelta(hours=24)
         db.session.commit()
 
-        send_verification_email(email, verification_token, user.name)
+        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, user.name))
+        t.start()
 
         return jsonify({'message': 'Verification email resent.'}), 200
 
@@ -228,10 +230,8 @@ def resend_verification():
 
 @auth_bp.route('/verify', methods=['POST'])
 def verify():
-    """Verify JWT token"""
     try:
         auth_header = request.headers.get('Authorization')
-
         if not auth_header:
             return jsonify({'message': 'Missing authorization header'}), 401
 
@@ -241,19 +241,14 @@ def verify():
             return jsonify({'message': 'Invalid authorization header'}), 401
 
         payload = verify_token(token)
-
         if 'error' in payload:
             return jsonify({'message': payload['error']}), 401
 
         user = User.query.get(payload['user_id'])
-
         if not user:
             return jsonify({'message': 'User not found'}), 404
 
-        return jsonify({
-            'message': 'Token valid',
-            'user': user.to_dict()
-        }), 200
+        return jsonify({'message': 'Token valid', 'user': user.to_dict()}), 200
 
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
@@ -261,10 +256,8 @@ def verify():
 
 @auth_bp.route('/refresh', methods=['POST'])
 def refresh_token():
-    """Refresh JWT token"""
     try:
         auth_header = request.headers.get('Authorization')
-
         if not auth_header:
             return jsonify({'message': 'Missing authorization header'}), 401
 
@@ -274,21 +267,15 @@ def refresh_token():
             return jsonify({'message': 'Invalid authorization header'}), 401
 
         payload = verify_token(token)
-
         if 'error' in payload:
             return jsonify({'message': payload['error']}), 401
 
         user = User.query.get(payload['user_id'])
-
         if not user:
             return jsonify({'message': 'User not found'}), 404
 
         new_token = create_token(user)
-
-        return jsonify({
-            'message': 'Token refreshed',
-            'token': new_token
-        }), 200
+        return jsonify({'message': 'Token refreshed', 'token': new_token}), 200
 
     except Exception as e:
         return jsonify({'message': f'Error: {str(e)}'}), 500
@@ -296,65 +283,17 @@ def refresh_token():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    """Logout user"""
     return jsonify({'message': 'Logged out successfully'}), 200
-
-
-def generate_otp():
-    """Generate a 6-digit OTP"""
-    return ''.join(random.choices(string.digits, k=6))
-
-
-def send_otp_email(email, otp, user_name):
-    """Send OTP to user's email"""
-    try:
-        subject = 'CareerWays - Password Reset OTP'
-        html = f"""
-        <html>
-            <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-                <div style="background-color: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
-                    <h2 style="color: #333;">Password Reset Request</h2>
-                    <p>Hi {user_name},</p>
-                    <p>We received a request to reset your password. Use the OTP below to proceed:</p>
-                    
-                    <div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; text-align: center; margin: 20px 0;">
-                        <h1 style="color: #007bff; letter-spacing: 5px; margin: 0;">{otp}</h1>
-                    </div>
-                    
-                    <p style="color: #666;">This OTP is valid for 10 minutes. Do not share it with anyone.</p>
-                    <p style="color: #666;">If you didn't request a password reset, please ignore this email and your password will remain unchanged.</p>
-                    
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                    <p style="color: #999; font-size: 12px;">CareerWays - AI-Powered Course Guidance</p>
-                </div>
-            </body>
-        </html>
-        """
-
-        msg = Message(
-            subject=subject,
-            recipients=[email],
-            html=html
-        )
-
-        mail.send(msg)
-        return True
-    except Exception as e:
-        print(f"Error sending email: {str(e)}")
-        return False
 
 
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
-    """Request password reset - sends OTP to email"""
     try:
         data = request.get_json()
-
         if not data or 'email' not in data:
             return jsonify({'message': 'Email is required'}), 400
 
         email = data['email'].strip().lower()
-
         user = User.query.filter_by(email=email).first()
 
         if not user:
@@ -365,16 +304,12 @@ def forgot_password():
 
         user.password_reset_otp = otp
         user.password_reset_otp_expires = otp_expires
-
         db.session.commit()
 
-        if not send_otp_email(email, otp, user.name):
-            return jsonify({'message': 'Error sending OTP. Please try again.'}), 500
+        t = threading.Thread(target=lambda: send_otp_email(email, otp, user.name))
+        t.start()
 
-        return jsonify({
-            'message': 'OTP has been sent to your email',
-            'email': email
-        }), 200
+        return jsonify({'message': 'OTP has been sent to your email', 'email': email}), 200
 
     except Exception as e:
         db.session.rollback()
@@ -383,10 +318,8 @@ def forgot_password():
 
 @auth_bp.route('/verify-otp', methods=['POST'])
 def verify_otp():
-    """Verify OTP for password reset"""
     try:
         data = request.get_json()
-
         if not data or not all(k in data for k in ['email', 'otp']):
             return jsonify({'message': 'Email and OTP are required'}), 400
 
@@ -394,7 +327,6 @@ def verify_otp():
         otp = data['otp'].strip()
 
         user = User.query.filter_by(email=email).first()
-
         if not user:
             return jsonify({'message': 'User not found'}), 404
 
@@ -410,13 +342,9 @@ def verify_otp():
         reset_token = str(uuid.uuid4())
         user.password_reset_token = reset_token
         user.password_reset_expires = datetime.utcnow() + timedelta(minutes=15)
-
         db.session.commit()
 
-        return jsonify({
-            'message': 'OTP verified successfully',
-            'reset_token': reset_token
-        }), 200
+        return jsonify({'message': 'OTP verified successfully', 'reset_token': reset_token}), 200
 
     except Exception as e:
         db.session.rollback()
@@ -425,10 +353,8 @@ def verify_otp():
 
 @auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
-    """Reset password with valid reset token"""
     try:
         data = request.get_json()
-
         if not data or not all(k in data for k in ['email', 'reset_token', 'new_password']):
             return jsonify({'message': 'Email, reset token, and new password are required'}), 400
 
@@ -440,7 +366,6 @@ def reset_password():
             return jsonify({'message': 'Password must be at least 6 characters'}), 400
 
         user = User.query.filter_by(email=email).first()
-
         if not user:
             return jsonify({'message': 'User not found'}), 404
 
@@ -455,30 +380,14 @@ def reset_password():
         user.password_reset_otp_expires = None
         user.password_reset_token = None
         user.password_reset_expires = None
-
         db.session.commit()
 
-        try:
-            subject = 'CareerWays - Password Changed Successfully'
-            html = f"""
-            <html>
-                <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-                    <div style="background-color: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #333;">Password Changed Successfully</h2>
-                        <p>Hi {user.name},</p>
-                        <p>Your password has been reset successfully. You can now log in with your new password.</p>
-                        <p style="color: #666;">If you didn't make this change, please contact support immediately.</p>
-                        
-                        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                        <p style="color: #999; font-size: 12px;">CareerWays - AI-Powered Course Guidance</p>
-                    </div>
-                </body>
-            </html>
-            """
-            msg = Message(subject=subject, recipients=[email], html=html)
-            mail.send(msg)
-        except Exception as e:
-            print(f"Error sending confirmation email: {str(e)}")
+        t = threading.Thread(target=lambda: mail.send(Message(
+            subject='CareerWays - Password Changed Successfully',
+            recipients=[email],
+            html=f"<p>Hi {user.name}, your password has been reset successfully.</p>"
+        )))
+        t.start()
 
         return jsonify({'message': 'Password reset successful. Please log in with your new password.'}), 200
 

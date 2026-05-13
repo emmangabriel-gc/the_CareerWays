@@ -81,16 +81,18 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv(
         'MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+    app.config['MAIL_TIMEOUT'] = 10
 
     # Initialize extensions
     db.init_app(app)
     mail.init_app(app)
     
     CORS(app, supports_credentials=True, resources={r"/api/*": {
-    "origins": "*",
+    "origins": "https://the-career-ways.vercel.app",
     "allow_headers": ["Content-Type", "Authorization"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }})
+
     # Register blueprints
     from routes.auth_routes import auth_bp
     from routes.assessment_routes import assessment_bp
