@@ -2,19 +2,43 @@
 Authentication Routes for CareerWays
 """
 
-from flask import Blueprint, request, jsonify, redirect, copy_current_request_context
+from flask import Blueprint, request, jsonify, redirect, current_app
 from app import db, mail
 from models import User
 from flask_mail import Message
 import jwt
 import os
-import threading
 from datetime import datetime, timedelta
 import uuid
 import random
 import string
+import logging
 
 auth_bp = Blueprint('auth', __name__)
+_log = logging.getLogger(__name__)
+
+
+def _log_mail_error(message, exc=None):
+    try:
+        if exc is not None:
+            current_app.logger.error("%s: %s", message, exc, exc_info=exc)
+        else:
+            current_app.logger.error(message)
+    except RuntimeError:
+        if exc is not None:
+            _log.error("%s: %s", message, exc, exc_info=exc)
+        else:
+            _log.error(message)
+
+
+def mail_credentials_configured():
+    """True if Flask-Mail has credentials (SMTP cannot send without them)."""
+    try:
+        u = (current_app.config.get('MAIL_USERNAME') or '').strip()
+        p = (current_app.config.get('MAIL_PASSWORD') or '').strip()
+        return bool(u and p)
+    except RuntimeError:
+        return False
 
 
 def get_public_backend_url():
@@ -86,7 +110,7 @@ def send_verification_email(email, token, user_name):
         mail.send(msg)
         return True
     except Exception as e:
-        print(f"Error sending verification email: {str(e)}")
+        _log_mail_error("Error sending verification email", e)
         return False
 
 
@@ -119,7 +143,7 @@ def send_otp_email(email, otp, user_name):
         mail.send(msg)
         return True
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
+        _log_mail_error("Error sending OTP email", e)
         return False
 
 
@@ -150,15 +174,27 @@ def signup():
         user.verification_token_expires = verification_expires
 
         db.session.add(user)
+        db.session.flush()
+
+        if not mail_credentials_configured():
+            db.session.rollback()
+            return jsonify({
+                'message': (
+                    'Email is not configured on the server (MAIL_USERNAME / MAIL_PASSWORD). '
+                    'Add SMTP credentials in Railway, then try again.'
+                )
+            }), 503
+
+        if not send_verification_email(email, verification_token, user.name):
+            db.session.rollback()
+            return jsonify({
+                'message': (
+                    'Could not send verification email. Check MAIL_SERVER, MAIL_PORT, '
+                    'MAIL_USE_TLS/MAIL_USE_SSL, and sender settings on the server.'
+                )
+            }), 503
+
         db.session.commit()
-
-        user_name = user.name
-
-        @copy_current_request_context
-        def send_verification_async():
-            send_verification_email(email, verification_token, user_name)
-
-        threading.Thread(target=send_verification_async).start()
 
         return jsonify({'message': 'Account created. Please check your email to verify your account.'}), 200
 
@@ -235,12 +271,25 @@ def resend_verification():
         verification_token = str(uuid.uuid4())
         user.verification_token = verification_token
         user.verification_token_expires = datetime.utcnow() + timedelta(hours=24)
-        db.session.commit()
 
-        user_name = user.name
-        t = threading.Thread(target=lambda: send_verification_email(email, verification_token, user_name))
-    
-        t.start()
+        if not mail_credentials_configured():
+            db.session.rollback()
+            return jsonify({
+                'message': (
+                    'Email is not configured on the server. '
+                    'Set MAIL_USERNAME and MAIL_PASSWORD in Railway.'
+                )
+            }), 503
+
+        if not send_verification_email(email, verification_token, user.name):
+            db.session.rollback()
+            return jsonify({
+                'message': (
+                    'Could not send verification email. Check SMTP settings on the server.'
+                )
+            }), 503
+
+        db.session.commit()
 
         return jsonify({'message': 'Verification email resent.'}), 200
 
@@ -325,15 +374,26 @@ def forgot_password():
 
         user.password_reset_otp = otp
         user.password_reset_otp_expires = otp_expires
+
+        if not mail_credentials_configured():
+            db.session.rollback()
+            return jsonify({
+                'message': (
+                    'Password reset email is not configured on the server. '
+                    'Set MAIL_USERNAME and MAIL_PASSWORD in Railway, then try again.'
+                )
+            }), 503
+
+        if not send_otp_email(email, otp, user.name):
+            db.session.rollback()
+            return jsonify({
+                'message': (
+                    'Could not send reset email. Verify MAIL_SERVER, MAIL_PORT, '
+                    'MAIL_USE_TLS or MAIL_USE_SSL (e.g. 465), and Gmail app password if using Gmail.'
+                )
+            }), 503
+
         db.session.commit()
-
-        user_name = user.name
-
-        @copy_current_request_context
-        def send_otp_async():
-            send_otp_email(email, otp, user_name)
-
-        threading.Thread(target=send_otp_async).start()
 
         return jsonify({'message': 'OTP has been sent to your email', 'email': email}), 200
 
@@ -408,13 +468,15 @@ def reset_password():
         user.password_reset_expires = None
         db.session.commit()
 
-        user_name = user.name
-        t = threading.Thread(target=lambda: mail.send(Message(
-            subject='CareerWays - Password Changed Successfully',
-            recipients=[email],
-            html=f"<p>Hi {user_name}, your password has been reset successfully.</p>"
-        )))
-        t.start()
+        try:
+            msg = Message(
+                subject='CareerWays - Password Changed Successfully',
+                recipients=[email],
+                html=f"<p>Hi {user.name}, your password has been reset successfully.</p>"
+            )
+            mail.send(msg)
+        except Exception as e:
+            _log_mail_error("password-changed notification failed", e)
 
         return jsonify({'message': 'Password reset successful. Please log in with your new password.'}), 200
 

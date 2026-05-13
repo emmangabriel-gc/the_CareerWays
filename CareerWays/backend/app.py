@@ -95,10 +95,16 @@ def create_app():
     app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
     app.config['MAIL_USE_TLS'] = os.getenv(
         'MAIL_USE_TLS', 'true').lower() == 'true'
+    app.config['MAIL_USE_SSL'] = os.getenv(
+        'MAIL_USE_SSL', 'false').lower() == 'true'
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '')
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv(
-        'MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+    _mail_user = (app.config['MAIL_USERNAME'] or '').strip()
+    app.config['MAIL_DEFAULT_SENDER'] = (
+        os.getenv('MAIL_DEFAULT_SENDER', '').strip()
+        or _mail_user
+        or 'noreply@careerways.com'
+    )
     app.config['MAIL_TIMEOUT'] = 10
 
     # Initialize extensions
