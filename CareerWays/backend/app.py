@@ -112,11 +112,13 @@ def create_app():
     mail.init_app(app)
     
     cors_origins = _parse_cors_origins()
-    CORS(app, supports_credentials=True, resources={r"/api/*": {
-        "origins": cors_origins,
-        "allow_headers": ["Content-Type", "Authorization"],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    }})
+    CORS(
+        app,
+        origins=cors_origins,
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    )
 
     # Register blueprints
     from routes.auth_routes import auth_bp

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'careerways-v1';
+const CACHE_NAME = 'careerways-v2';
 
 const ASSETS = [
   '/index.html',
@@ -19,6 +19,7 @@ const ASSETS = [
   '/css/results.css',
   '/css/verify-email.css',
 
+  '/js/api-config.js',
   '/js/index.js',
   '/js/dashboard.js',
   '/js/assessment.js',
@@ -56,17 +57,16 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ── Fetch: cache-first for assets, network for API ────────────────────────
+// ── Fetch: only same-origin (Vercel static files). Never intercept Railway API. ──
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
+  const scopeOrigin = new URL(self.registration.scope).origin;
 
-  // Always go to network for API calls — never cache these
-  if (url.pathname.startsWith('/api/')) {
-    e.respondWith(fetch(e.request));
+  // Cross-origin (e.g. Railway API): do not call respondWith — avoids SW+CORS failures
+  if (url.origin !== scopeOrigin) {
     return;
   }
 
-  // Cache-first for everything else
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
