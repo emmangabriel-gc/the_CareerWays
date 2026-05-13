@@ -42,6 +42,22 @@ def mail_credentials_configured():
         return False
 
 
+def _database_unavailable_response(log_event, exc=None):
+    """Safe JSON when Postgres/Supabase is misconfigured (do not echo connection strings)."""
+    _log_mail_error(log_event, exc)
+    return jsonify({
+        'code': 'DATABASE_CONNECTION_FAILED',
+        'message': (
+            'Cannot connect to the database. In Railway, set DATABASE_URL to the exact '
+            'PostgreSQL URI from Supabase: Project Settings → Database → Connection string '
+            '(use "URI" and pick Transaction pooler or Direct as documented there). '
+            'The username for the pooler must be postgres.YOUR_PROJECT_REF where '
+            'PROJECT_REF is Project Settings → General → Reference ID. '
+            'If you reset the database password or created a new project, paste the new URI again.'
+        )
+    }), 503
+
+
 def get_public_backend_url():
     """Public HTTPS base for API links in emails (no trailing slash)."""
     explicit = os.getenv('BACKEND_URL', '').strip().rstrip('/')
@@ -199,9 +215,16 @@ def signup():
 
         return jsonify({'message': 'Account created. Please check your email to verify your account.'}), 200
 
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return _database_unavailable_response('signup database error', e)
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': f'Error: {str(e)}'}), 500
+        _log_mail_error('signup unexpected error', e)
+        return jsonify({
+            'code': 'SERVER_ERROR',
+            'message': 'Something went wrong. Check Railway logs.',
+        }), 500
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -228,8 +251,14 @@ def login():
         token = create_token(user)
         return jsonify({'message': 'Login successful', 'token': token, 'user': user.to_dict()}), 200
 
+    except SQLAlchemyError as e:
+        return _database_unavailable_response('login database error', e)
     except Exception as e:
-        return jsonify({'message': f'Error: {str(e)}'}), 500
+        _log_mail_error('login unexpected error', e)
+        return jsonify({
+            'code': 'SERVER_ERROR',
+            'message': 'Something went wrong. Check Railway logs.',
+        }), 500
 
 
 @auth_bp.route('/confirm-email', methods=['GET'])
@@ -294,9 +323,16 @@ def resend_verification():
 
         return jsonify({'message': 'Verification email resent.'}), 200
 
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return _database_unavailable_response('resend-verification database error', e)
     except Exception as e:
         db.session.rollback()
-        return jsonify({'message': f'Error: {str(e)}'}), 500
+        _log_mail_error('resend-verification unexpected error', e)
+        return jsonify({
+            'code': 'SERVER_ERROR',
+            'message': 'Something went wrong. Check Railway logs.',
+        }), 500
 
 
 @auth_bp.route('/verify', methods=['POST'])

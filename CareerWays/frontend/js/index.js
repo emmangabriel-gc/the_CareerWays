@@ -3,6 +3,16 @@
 // API Base URL
 const API_BASE_URL = window.__CW_API_BASE__;
 
+async function parseJsonResponse(response) {
+    const text = await response.text();
+    if (!text) return {};
+    try {
+        return JSON.parse(text);
+    } catch (_) {
+        return { _raw: text };
+    }
+}
+
 // DOM Elements
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
@@ -269,7 +279,8 @@ async function handleLoginSubmit(e) {
             body: JSON.stringify({ email, password })
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
+        const code = data.code ? ` [${data.code}]` : '';
 
         if (response.ok) {
             localStorage.setItem('token', data.token);
@@ -284,7 +295,8 @@ async function handleLoginSubmit(e) {
             showUnverifiedModal(email);
 
         } else {
-            showNotification(data.message || 'Login failed', 'error');
+            console.error('Login error', response.status, data);
+            showNotification(`${data.message || 'Login failed'}${code}`, 'error');
         }
     } catch (error) {
         console.error('Login error:', error);
@@ -315,7 +327,8 @@ async function handleSignupSubmit(e) {
             body: JSON.stringify({ name, email, password })
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
+        const code = data.code ? ` [${data.code}]` : '';
 
         if (response.ok) {
             // Show the verify-email tab instead of redirecting
@@ -329,7 +342,8 @@ async function handleSignupSubmit(e) {
             // Clear signup form
             signupForm.reset();
         } else {
-            showNotification(data.message || 'Sign up failed', 'error');
+            console.error('Signup error', response.status, data);
+            showNotification(`${data.message || 'Sign up failed'}${code}`, 'error');
         }
     } catch (error) {
         console.error('Signup error:', error);
