@@ -86,7 +86,11 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
     
-    CORS(app)
+    CORS(app, supports_credentials=True, resources={r"/api/*": {
+    "origins": "*",
+    "allow_headers": ["Content-Type", "Authorization"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+        
     # Register blueprints
     from routes.auth_routes import auth_bp
     from routes.assessment_routes import assessment_bp
