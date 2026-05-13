@@ -46,7 +46,7 @@ def verify_token(token):
 # ── Helper: send verification email ──────────────────────────────────────────
 def send_verification_email(email, token, user_name):
     """Send account verification link to user's email"""
-    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5500')
+    frontend_url = os.getenv('FRONTEND_URL', 'https://the-career-ways.vercel.app')
 
     try:
         subject = 'CareerWays – Please verify your email'
@@ -172,7 +172,7 @@ def login():
 @auth_bp.route('/confirm-email', methods=['GET'])
 def confirm_email():
     """Verify user's email via token link — redirects back to frontend"""
-    frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5500')
+    frontend_url = os.getenv('FRONTEND_URL', 'https://the-career-ways.vercel.app')
     token = request.args.get('token', '').strip()
 
     if not token:
