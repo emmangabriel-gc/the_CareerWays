@@ -78,6 +78,12 @@ def _merge_cors_origins():
 def resolve_database_uri():
     """Resolve database URI with smart fallback to SQLite."""
     configured_uri = os.getenv('DATABASE_URL', '').strip()
+    if configured_uri and configured_uri.lower().startswith(('http://', 'https://')):
+        raise RuntimeError(
+            "DATABASE_URL must be a PostgreSQL URI (postgresql:// or postgres://). "
+            "Copy it from Supabase: Project Settings → Database → Connection string → URI. "
+            "Do not paste an https:// Supabase API URL or dashboard link as DATABASE_URL."
+        )
     # Railway / Heroku-style URLs use postgres:// which SQLAlchemy rejects
     if configured_uri.startswith('postgres://'):
         configured_uri = configured_uri.replace(
