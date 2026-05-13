@@ -79,6 +79,16 @@ function updateProgressIndicator(currentStep) {
     });
 }
 
+async function parseJsonResponse(response) {
+    const text = await response.text();
+    if (!text) return {};
+    try {
+        return JSON.parse(text);
+    } catch (_) {
+        return { _raw: text };
+    }
+}
+
 // Step 1: Send OTP via backend
 async function handleSendOtp() {
     const email = emailInput.value.trim();
@@ -98,15 +108,17 @@ async function handleSendOtp() {
             body: JSON.stringify({ email })
         });
 
-        let data = {};
-        try {
-            data = await response.json();
-        } catch (_) {
-            /* non-JSON body */
-        }
+        const data = await parseJsonResponse(response);
+        const code = data.code ? ` [${data.code}]` : '';
 
         if (!response.ok) {
-            throw new Error(data.message || `Request failed (${response.status})`);
+            const msg =
+                data.message ||
+                (data._raw
+                    ? `Server returned ${response.status} (not JSON). Check Railway logs.`
+                    : `Request failed (${response.status})`);
+            console.error('forgot-password error', response.status, data);
+            throw new Error(`${msg}${code}`);
         }
 
         userEmail = email;

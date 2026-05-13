@@ -383,6 +383,7 @@ def forgot_password():
         if not mail_credentials_configured():
             db.session.rollback()
             return jsonify({
+                'code': 'MAIL_NOT_CONFIGURED',
                 'message': (
                     'Password reset email is not configured on the server. '
                     'Set MAIL_USERNAME and MAIL_PASSWORD in Railway, then try again.'
@@ -392,6 +393,7 @@ def forgot_password():
         if not send_otp_email(email, otp, user.name or 'there'):
             db.session.rollback()
             return jsonify({
+                'code': 'MAIL_SEND_FAILED',
                 'message': (
                     'Could not send reset email. Verify MAIL_SERVER, MAIL_PORT, '
                     'MAIL_USE_TLS or MAIL_USE_SSL (e.g. 465), and Gmail app password if using Gmail.'
@@ -406,6 +408,7 @@ def forgot_password():
         db.session.rollback()
         _log_mail_error('forgot-password database error', e)
         return jsonify({
+            'code': 'DATABASE_ERROR',
             'message': 'Database error. Check DATABASE_URL (SSL) and Supabase pooler settings.'
         }), 503
     except Exception as e:
