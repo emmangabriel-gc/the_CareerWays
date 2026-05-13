@@ -87,11 +87,11 @@ def create_app():
     mail.init_app(app)
     
     CORS(app, supports_credentials=True, resources={r"/api/*": {
-    "origins": "*",
+    "origins": "https://the-career-ways.vercel.app",
     "allow_headers": ["Content-Type", "Authorization"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }})
-        
+
     # Register blueprints
     from routes.auth_routes import auth_bp
     from routes.assessment_routes import assessment_bp
