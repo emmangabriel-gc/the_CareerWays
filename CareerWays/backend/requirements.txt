@@ -1,14 +1,30 @@
-flask
-flask-sqlalchemy
-flask-cors
-flask-mail
-python-dotenv
-PyJWT
-werkzeug
-psycopg2-binary
-gunicorn
-numpy
-scikit-learn
-nltk
-scipy
-textblob
+Flask>=3.0.0
+Flask-CORS>=4.0.0
+Flask-SQLAlchemy>=3.1.0
+SQLAlchemy>=2.0.0,<2.1.0
+PyJWT>=2.8.0
+Werkzeug>=3.0.0
+
+# Database
+python-dotenv==1.0.0
+# psycopg2-binary==2.9.7  # Only needed for PostgreSQL
+# gunicorn==21.2.0  # For production deployment
+
+# Email and OTP
+Flask-Mail>=0.9.1
+pyotp>=2.8.0
+qrcode>=7.4.2
+
+# NLP and ML Libraries
+nltk==3.8.1
+textblob==0.17.1
+scikit-learn>=1.4.0
+numpy>=1.24.3
+
+# Advanced Semantic Embeddings
+sentence-transformers>=5.0.0
+torch>=2.0.0
+transformers>=4.40.0
+
+# Development
+pytest==7.4.0

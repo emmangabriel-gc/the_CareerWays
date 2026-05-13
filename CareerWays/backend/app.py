@@ -85,11 +85,8 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     mail.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": [
-    "https://the-career-ways.vercel.app",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500"
-]}})
+    
+    CORS(app)
     # Register blueprints
     from routes.auth_routes import auth_bp
     from routes.assessment_routes import assessment_bp
