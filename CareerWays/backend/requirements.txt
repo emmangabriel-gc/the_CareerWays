@@ -8,7 +8,7 @@ Werkzeug>=3.0.0
 # Database
 python-dotenv==1.0.0
 # psycopg2-binary==2.9.7  # Only needed for PostgreSQL
-# gunicorn==21.2.0  # For production deployment
+gunicorn==21.2.0  # For production deployment
 
 # Email and OTP
 Flask-Mail>=0.9.1
