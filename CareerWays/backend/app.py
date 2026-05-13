@@ -90,6 +90,7 @@ def create_app():
     "origins": "*",
     "allow_headers": ["Content-Type", "Authorization"],
     "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}})
         
     # Register blueprints
     from routes.auth_routes import auth_bp
