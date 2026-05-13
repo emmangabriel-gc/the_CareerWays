@@ -98,10 +98,15 @@ async function handleSendOtp() {
             body: JSON.stringify({ email })
         });
 
-        const data = await response.json();
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (_) {
+            /* non-JSON body */
+        }
 
         if (!response.ok) {
-            throw new Error(data.message || 'Failed to send OTP');
+            throw new Error(data.message || `Request failed (${response.status})`);
         }
 
         userEmail = email;

@@ -13,6 +13,7 @@ import uuid
 import random
 import string
 import logging
+from sqlalchemy.exc import SQLAlchemyError
 
 auth_bp = Blueprint('auth', __name__)
 _log = logging.getLogger(__name__)
@@ -359,11 +360,15 @@ def logout():
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     try:
-        data = request.get_json()
-        if not data or 'email' not in data:
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict) or 'email' not in data:
             return jsonify({'message': 'Email is required'}), 400
 
-        email = data['email'].strip().lower()
+        raw_email = data.get('email')
+        if raw_email is None or not isinstance(raw_email, str) or not raw_email.strip():
+            return jsonify({'message': 'Email is required'}), 400
+
+        email = raw_email.strip().lower()
         user = User.query.filter_by(email=email).first()
 
         if not user:
@@ -384,7 +389,7 @@ def forgot_password():
                 )
             }), 503
 
-        if not send_otp_email(email, otp, user.name):
+        if not send_otp_email(email, otp, user.name or 'there'):
             db.session.rollback()
             return jsonify({
                 'message': (
@@ -397,8 +402,15 @@ def forgot_password():
 
         return jsonify({'message': 'OTP has been sent to your email', 'email': email}), 200
 
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        _log_mail_error('forgot-password database error', e)
+        return jsonify({
+            'message': 'Database error. Check DATABASE_URL (SSL) and Supabase pooler settings.'
+        }), 503
     except Exception as e:
         db.session.rollback()
+        _log_mail_error('forgot-password unexpected error', e)
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
 

@@ -87,6 +87,13 @@ def resolve_database_uri():
         print("[CareerWays] No DATABASE_URL configured. Using SQLite.")
         return get_local_sqlite_uri()
 
+    # Supabase / managed Postgres often require TLS; psycopg2 may fail without sslmode
+    if configured_uri.startswith('postgresql'):
+        low = configured_uri.lower()
+        if 'sslmode=' not in low and 'ssl=' not in low:
+            joiner = '&' if '?' in configured_uri else '?'
+            configured_uri = f'{configured_uri}{joiner}sslmode=require'
+
     # If it's a Supabase connection, we'll try it but have SQLite as fallback
     if 'supabase.co' in configured_uri or 'postgresql' in configured_uri:
         print(f"[CareerWays] Using Supabase PostgreSQL connection")
@@ -132,7 +139,7 @@ def create_app():
         or _mail_user
         or 'noreply@careerways.com'
     )
-    app.config['MAIL_TIMEOUT'] = 10
+    app.config['MAIL_TIMEOUT'] = int(os.getenv('MAIL_TIMEOUT', '30'))
 
     # Initialize extensions
     db.init_app(app)
