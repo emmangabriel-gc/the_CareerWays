@@ -442,11 +442,7 @@ def forgot_password():
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        _log_mail_error('forgot-password database error', e)
-        return jsonify({
-            'code': 'DATABASE_ERROR',
-            'message': 'Database error. Check DATABASE_URL (SSL) and Supabase pooler settings.'
-        }), 503
+        return _database_unavailable_response('forgot-password database error', e)
     except Exception as e:
         db.session.rollback()
         _log_mail_error('forgot-password unexpected error', e)

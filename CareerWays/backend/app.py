@@ -99,6 +99,11 @@ def resolve_database_uri():
         if 'sslmode=' not in low and 'ssl=' not in low:
             joiner = '&' if '?' in configured_uri else '?'
             configured_uri = f'{configured_uri}{joiner}sslmode=require'
+        low = configured_uri.lower()
+        # Transaction pooler (port 6543): Supabase recommends pgbouncer=true in the URI
+        if 'pooler.supabase.com' in low and 'pgbouncer=' not in low:
+            joiner = '&' if '?' in configured_uri else '?'
+            configured_uri = f'{configured_uri}{joiner}pgbouncer=true'
 
     # If it's a Supabase connection, we'll try it but have SQLite as fallback
     if 'supabase.co' in configured_uri or 'postgresql' in configured_uri:
@@ -124,7 +129,11 @@ def create_app():
     }
     # sqlite3 does not accept PostgreSQL-style connect_args
     if not database_uri.startswith('sqlite'):
-        engine_opts['connect_args'] = {'connect_timeout': 10}
+        connect_args = {'connect_timeout': 10}
+        # PgBouncer transaction mode: disable server-side prepares (avoids random DB errors)
+        if 'pooler.supabase.com' in database_uri.lower():
+            connect_args['prepare_threshold'] = None
+        engine_opts['connect_args'] = connect_args
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = engine_opts
     app.config['JWT_SECRET_KEY'] = os.getenv(
         'JWT_SECRET_KEY', 'your-secret-key-change-in-production')
