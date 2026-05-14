@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from datetime import timedelta
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+from sqlalchemy import text
 from dotenv import load_dotenv
 # CRITICAL: Register this module as 'app' BEFORE any other imports
 # This resolves circular import issues in models/__init__.py
@@ -178,7 +179,7 @@ def create_app():
             return
         try:
             with app.app_context():
-                db.session.execute('SELECT 1')
+                db.session.execute(text('SELECT 1'))
             print("[CareerWays] Supabase/PostgreSQL database connection is available.")
         except Exception as e:
             print(
