@@ -158,6 +158,22 @@ def create_app():
     db.init_app(app)
     mail.init_app(app)
 
+    def _check_database_connection():
+        if database_uri.startswith('sqlite'):
+            print("[CareerWays] Using local SQLite database.")
+            return
+        try:
+            with app.app_context():
+                db.session.execute('SELECT 1')
+            print("[CareerWays] Supabase/PostgreSQL database connection is available.")
+        except Exception as e:
+            print("[CareerWays] WARNING: Could not connect to the configured PostgreSQL database.")
+            print(f"[CareerWays]   {str(e)}")
+            print("[CareerWays]   Check DATABASE_URL, credentials, and network access.")
+            print("[CareerWays]   The app may start, but database queries will fail.")
+
+    _check_database_connection()
+
     cors_origins = _merge_cors_origins()
     cors_origin_set = {o.rstrip('/') for o in cors_origins}
 

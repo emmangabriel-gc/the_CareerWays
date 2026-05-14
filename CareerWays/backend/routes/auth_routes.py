@@ -48,12 +48,10 @@ def _database_unavailable_response(log_event, exc=None):
     return jsonify({
         'code': 'DATABASE_CONNECTION_FAILED',
         'message': (
-            'Cannot connect to the database. In Railway, set DATABASE_URL to the exact '
-            'PostgreSQL URI from Supabase: Project Settings → Database → Connection string '
-            '(use "URI" and pick Transaction pooler or Direct as documented there). '
-            'The username for the pooler must be postgres.YOUR_PROJECT_REF where '
-            'PROJECT_REF is Project Settings → General → Reference ID. '
-            'If you reset the database password or created a new project, paste the new URI again.'
+            'Cannot connect to the database. Check that DATABASE_URL is set to the exact '
+            'PostgreSQL URI from Supabase: Project Settings → Database → Connection string → URI. '
+            'Do not paste a Supabase dashboard or API URL. If you reset the database password, '
+            'paste the updated URI again.'
         )
     }), 503
 
