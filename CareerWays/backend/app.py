@@ -241,9 +241,15 @@ def create_app():
             db.create_all()
             print("[CareerWays] Database tables initialized successfully")
         except Exception as e:
-            print(
-                f"[CareerWays] Warning: Could not create database tables: {str(e)}")
-            print(f"[CareerWays] This is normal if tables already exist in Supabase")
+            err_text = str(e)
+            print(f"[CareerWays] Warning: Could not create database tables: {err_text}")
+            if 'password authentication failed' in err_text.lower():
+                print("[CareerWays] Supabase connection failed due to invalid database credentials.")
+                print("[CareerWays] Check DATABASE_URL and password in your deployment environment.")
+            elif 'could not connect to server' in err_text.lower() or 'timeout expired' in err_text.lower():
+                print("[CareerWays] Database host unreachable or port incorrect. Verify DATABASE_URL and network access.")
+            else:
+                print("[CareerWays] This is normal if tables already exist in Supabase")
 
     # Health check endpoint
     @app.route('/api/health', methods=['GET'])
