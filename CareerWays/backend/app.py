@@ -136,7 +136,7 @@ def create_app():
         engine_opts['connect_args'] = connect_args
     app.config['SQLALCHEMY_ENGINE_OPTIONS'] = engine_opts
     app.config['JWT_SECRET_KEY'] = os.getenv(
-        'JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+        'JWT_SECRET_KEY', '768e254f-6009-471f-b016-3e455c02b30a')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 
     # Email configuration

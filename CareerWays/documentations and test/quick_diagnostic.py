@@ -31,7 +31,7 @@ if database_url:
 else:
     print(f"   ❌ DATABASE_URL is NOT set")
 
-if jwt_secret and jwt_secret != 'your-secret-key-change-in-production':
+if jwt_secret and jwt_secret != '768e254f-6009-471f-b016-3e455c02b30a':
     print(f"   ✅ JWT_SECRET_KEY is configured")
 else:
     print(f"   ⚠️  JWT_SECRET_KEY is using default value")
