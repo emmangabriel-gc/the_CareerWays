@@ -11,6 +11,7 @@ import os
 import sys
 from pathlib import Path
 from datetime import timedelta
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from dotenv import load_dotenv
 # CRITICAL: Register this module as 'app' BEFORE any other imports
 # This resolves circular import issues in models/__init__.py
@@ -56,6 +57,16 @@ def _parse_cors_origins():
     return ['https://the-career-ways.vercel.app']
 
 
+def _remove_pgbouncer_param(uri):
+    """Remove pgbouncer=true from Supabase transaction pooler URIs."""
+    parsed = urlparse(uri)
+    query_items = parse_qsl(parsed.query, keep_blank_values=True)
+    filtered = [(k, v) for k, v in query_items if k.lower() != 'pgbouncer']
+    if len(filtered) == len(query_items):
+        return uri
+    return urlunparse(parsed._replace(query=urlencode(filtered, doseq=True)))
+
+
 def _merge_cors_origins():
     """Env-based origins plus known production frontend (Railway env mistakes won't drop Vercel)."""
     parsed = _parse_cors_origins()
@@ -77,7 +88,7 @@ def _merge_cors_origins():
 
 def resolve_database_uri():
     """Resolve database URI with smart fallback to SQLite."""
-    configured_uri = os.getenv('DATABASE_URL', '').strip()
+    configured_uri = _strip_env_quotes(os.getenv('DATABASE_URL', '')).strip()
     if configured_uri and configured_uri.lower().startswith(('http://', 'https://')):
         raise RuntimeError(
             "DATABASE_URL must be a PostgreSQL URI (postgresql:// or postgres://). "
@@ -99,9 +110,7 @@ def resolve_database_uri():
         if 'sslmode=' not in low and 'ssl=' not in low:
             joiner = '&' if '?' in configured_uri else '?'
             configured_uri = f'{configured_uri}{joiner}sslmode=require'
-        low = configured_uri.lower()
-        # Transaction pooler (port 6543): Supabase recommends pgbouncer=true in the URI
-        # NOTE: Removed pgbouncer=true as psycopg2 doesn't recognize it as a valid option
+        configured_uri = _remove_pgbouncer_param(configured_uri)
 
     # If it's a Supabase connection, we'll try it but have SQLite as fallback
     if 'supabase.co' in configured_uri or 'postgresql' in configured_uri:
@@ -138,21 +147,26 @@ def create_app():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)
 
     # Email configuration
-    app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
-    app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
-    app.config['MAIL_USE_TLS'] = os.getenv(
-        'MAIL_USE_TLS', 'true').lower() == 'true'
-    app.config['MAIL_USE_SSL'] = os.getenv(
-        'MAIL_USE_SSL', 'false').lower() == 'true'
-    app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '')
-    app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '')
+    app.config['MAIL_SERVER'] = _strip_env_quotes(
+        os.getenv('MAIL_SERVER', 'smtp.gmail.com'))
+    app.config['MAIL_PORT'] = int(
+        _strip_env_quotes(os.getenv('MAIL_PORT', '587')))
+    app.config['MAIL_USE_TLS'] = _strip_env_quotes(
+        os.getenv('MAIL_USE_TLS', 'true')).lower() == 'true'
+    app.config['MAIL_USE_SSL'] = _strip_env_quotes(
+        os.getenv('MAIL_USE_SSL', 'false')).lower() == 'true'
+    app.config['MAIL_USERNAME'] = _strip_env_quotes(
+        os.getenv('MAIL_USERNAME', ''))
+    app.config['MAIL_PASSWORD'] = _strip_env_quotes(
+        os.getenv('MAIL_PASSWORD', ''))
     _mail_user = (app.config['MAIL_USERNAME'] or '').strip()
     app.config['MAIL_DEFAULT_SENDER'] = (
-        os.getenv('MAIL_DEFAULT_SENDER', '').strip()
+        _strip_env_quotes(os.getenv('MAIL_DEFAULT_SENDER', '')).strip()
         or _mail_user
         or 'noreply@careerways.com'
     )
-    app.config['MAIL_TIMEOUT'] = int(os.getenv('MAIL_TIMEOUT', '30'))
+    app.config['MAIL_TIMEOUT'] = int(
+        _strip_env_quotes(os.getenv('MAIL_TIMEOUT', '30')))
 
     # Initialize extensions
     db.init_app(app)
@@ -167,7 +181,8 @@ def create_app():
                 db.session.execute('SELECT 1')
             print("[CareerWays] Supabase/PostgreSQL database connection is available.")
         except Exception as e:
-            print("[CareerWays] WARNING: Could not connect to the configured PostgreSQL database.")
+            print(
+                "[CareerWays] WARNING: Could not connect to the configured PostgreSQL database.")
             print(f"[CareerWays]   {str(e)}")
             print("[CareerWays]   Check DATABASE_URL, credentials, and network access.")
             print("[CareerWays]   The app may start, but database queries will fail.")
@@ -258,14 +273,19 @@ def create_app():
             print("[CareerWays] Database tables initialized successfully")
         except Exception as e:
             err_text = str(e)
-            print(f"[CareerWays] Warning: Could not create database tables: {err_text}")
+            print(
+                f"[CareerWays] Warning: Could not create database tables: {err_text}")
             if 'password authentication failed' in err_text.lower():
-                print("[CareerWays] Supabase connection failed due to invalid database credentials.")
-                print("[CareerWays] Check DATABASE_URL and password in your deployment environment.")
+                print(
+                    "[CareerWays] Supabase connection failed due to invalid database credentials.")
+                print(
+                    "[CareerWays] Check DATABASE_URL and password in your deployment environment.")
             elif 'could not connect to server' in err_text.lower() or 'timeout expired' in err_text.lower():
-                print("[CareerWays] Database host unreachable or port incorrect. Verify DATABASE_URL and network access.")
+                print(
+                    "[CareerWays] Database host unreachable or port incorrect. Verify DATABASE_URL and network access.")
             else:
-                print("[CareerWays] This is normal if tables already exist in Supabase")
+                print(
+                    "[CareerWays] This is normal if tables already exist in Supabase")
 
     # Health check endpoint
     @app.route('/api/health', methods=['GET'])
