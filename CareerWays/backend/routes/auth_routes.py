@@ -9,6 +9,7 @@ from flask_mail import Message
 import jwt
 import os
 from datetime import datetime, timedelta
+import threading
 import uuid
 import random
 import string
@@ -69,6 +70,36 @@ def get_public_backend_url():
     return 'https://thecareerways-production.up.railway.app'
 
 
+def _send_message_with_timeout(msg, timeout_seconds=None):
+    timeout_seconds = timeout_seconds or int(
+        current_app.config.get('MAIL_TIMEOUT', 30) or 30)
+    result = {'success': False, 'error': None}
+    completed = threading.Event()
+
+    def _send():
+        try:
+            mail.send(msg)
+            result['success'] = True
+        except Exception as exc:
+            result['error'] = exc
+        finally:
+            completed.set()
+
+    thread = threading.Thread(target=_send, daemon=True)
+    thread.start()
+
+    if not completed.wait(timeout_seconds):
+        _log_mail_error(
+            f"Email send timed out after {timeout_seconds} seconds")
+        return False
+
+    if result['error'] is not None:
+        _log_mail_error('Email send failed', result['error'])
+        return False
+
+    return True
+
+
 JWT_SECRET = os.getenv(
     'JWT_SECRET_KEY', '768e254f-6009-471f-b016-3e455c02b30a')
 JWT_ALGORITHM = 'HS256'
@@ -123,8 +154,7 @@ def send_verification_email(email, token, user_name):
         </html>
         """
         msg = Message(subject=subject, recipients=[email], html=html)
-        mail.send(msg)
-        return True
+        return _send_message_with_timeout(msg)
     except Exception as e:
         _log_mail_error("Error sending verification email", e)
         return False
@@ -156,8 +186,7 @@ def send_otp_email(email, otp, user_name):
         </html>
         """
         msg = Message(subject=subject, recipients=[email], html=html)
-        mail.send(msg)
-        return True
+        return _send_message_with_timeout(msg)
     except Exception as e:
         _log_mail_error("Error sending OTP email", e)
         return False
