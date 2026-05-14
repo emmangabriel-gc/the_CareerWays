@@ -101,9 +101,7 @@ def resolve_database_uri():
             configured_uri = f'{configured_uri}{joiner}sslmode=require'
         low = configured_uri.lower()
         # Transaction pooler (port 6543): Supabase recommends pgbouncer=true in the URI
-        if 'pooler.supabase.com' in low and 'pgbouncer=' not in low:
-            joiner = '&' if '?' in configured_uri else '?'
-            configured_uri = f'{configured_uri}{joiner}pgbouncer=true'
+        # NOTE: Removed pgbouncer=true as psycopg2 doesn't recognize it as a valid option
 
     # If it's a Supabase connection, we'll try it but have SQLite as fallback
     if 'supabase.co' in configured_uri or 'postgresql' in configured_uri:

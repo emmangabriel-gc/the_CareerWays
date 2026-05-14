@@ -72,7 +72,7 @@ def get_public_backend_url():
 
 
 JWT_SECRET = os.getenv(
-    'JWT_SECRET_KEY', 'your-secret-key-change-in-production')
+    'JWT_SECRET_KEY', '768e254f-6009-471f-b016-3e455c02b30a')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION = 30  # days
 
@@ -98,7 +98,8 @@ def verify_token(token):
 
 
 def send_verification_email(email, token, user_name):
-    frontend_url = os.getenv('FRONTEND_URL', 'https://the-career-ways.vercel.app')
+    frontend_url = os.getenv(
+        'FRONTEND_URL', 'https://the-career-ways.vercel.app')
     try:
         subject = 'CareerWays – Please verify your email'
         html = f"""
@@ -269,7 +270,8 @@ def login():
 
 @auth_bp.route('/confirm-email', methods=['GET'])
 def confirm_email():
-    frontend_url = os.getenv('FRONTEND_URL', 'https://the-career-ways.vercel.app')
+    frontend_url = os.getenv(
+        'FRONTEND_URL', 'https://the-career-ways.vercel.app')
     token = request.args.get('token', '').strip()
 
     if not token:
