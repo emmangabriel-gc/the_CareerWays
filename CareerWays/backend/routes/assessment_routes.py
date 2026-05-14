@@ -249,12 +249,10 @@ def get_assessment(assessment_id):
             course = Course.query.get(course_id)
             if course:
                 course_dict = course.to_dict()
-                course_dict['match_score'] = assessment.match_scores.get(
-                    course_id, 0)
-                course_dict['semantic_score'] = assessment.match_scores.get(
-                    course_id, 0)*0.4  # Assuming semantic score is part of the match score
-                course_dict['relevance_score'] = assessment.match_scores.get(
-                    course_id, 0)*0.2  # Assuming relevance score is part of the match score
+                score = assessment.match_scores.get(course_id, 0)
+                course_dict['match_score'] = score
+                course_dict['semantic_score'] = score
+                course_dict['relevance_score'] = score
                 courses_data.append(course_dict)
 
         return jsonify({
@@ -371,7 +369,7 @@ def get_top_courses():
         # Tally courses weighted by match_score with user preference
         tally = {}  # courseName -> { score, appearances, abbreviation }
         
-        for assessment in assessments:
+        for assessment in all_assessments:
             if not assessment.recommended_courses:
                 continue
                 

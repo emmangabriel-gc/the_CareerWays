@@ -194,13 +194,19 @@ def signup():
         db.session.flush()
 
         if not mail_credentials_configured():
-            db.session.rollback()
+            # If email SMTP is not configured, allow signup and mark the account as verified
+            # so users can log in immediately. This avoids signup blockers in environments
+            # where verification emails cannot be delivered.
+            user.is_verified = True
+            user.verification_token = None
+            user.verification_token_expires = None
+            db.session.commit()
             return jsonify({
                 'message': (
-                    'Email is not configured on the server (MAIL_USERNAME / MAIL_PASSWORD). '
-                    'Add SMTP credentials in Railway, then try again.'
+                    'Account created. Email verification is disabled on this server, so you can log in immediately. '
+                    'Configure MAIL_USERNAME and MAIL_PASSWORD to enable verification emails.'
                 )
-            }), 503
+            }), 200
 
         if not send_verification_email(email, verification_token, user.name):
             db.session.rollback()
