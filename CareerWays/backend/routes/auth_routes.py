@@ -75,7 +75,7 @@ def get_public_backend_url():
         if os.getenv('HEROKU_APP_NAME'):
             return f'https://{domain}.herokuapp.com'
         return f'https://{domain}'.rstrip('/')
-    return 'https://careerways-production.up.railway.app'
+    return 'https://thecareerways-production.up.railway.app'
 
 
 def _send_message_with_timeout(msg, timeout_seconds=None):
