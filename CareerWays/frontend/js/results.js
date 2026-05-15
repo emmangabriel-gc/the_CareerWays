@@ -7,12 +7,9 @@ const userNameDisplay = document.getElementById('userNameDisplay');
 const logoutBtn = document.getElementById('logoutBtn');
 const profileAnalysis = document.getElementById('profileAnalysis');
 const coursesList = document.getElementById('coursesList');
-const courseDetailModal = document.getElementById('courseDetailModal');
-const courseDetail = document.getElementById('courseDetail');
 const anotherAssessmentBtn = document.getElementById('anotherAssessmentBtn');
 const backToDashboardBtn = document.getElementById('backToDashboardBtn');
 const notification = document.getElementById('notification');
-const modalCloseBtn = document.querySelector('.modal-close');
 
 let currentAssessmentData = null;
 
@@ -30,15 +27,6 @@ function setupEventListeners() {
     anotherAssessmentBtn.addEventListener('click', handleAnotherAssessment);
     backToDashboardBtn.addEventListener('click', handleBackToDashboard);
 
-    if (modalCloseBtn) {
-        modalCloseBtn.addEventListener('click', closeModal);
-    }
-
-    courseDetailModal.addEventListener('click', (e) => {
-        if (e.target === courseDetailModal) {
-            closeModal();
-        }
-    });
 }
 
 // Check Authentication
@@ -239,7 +227,6 @@ function displayRecommendedCourses(data) {
                 </div>
             </div>
             <div class="course-card-footer">
-                <button onclick="viewCourseDetails(${index})">View Details</button>
                 <button class="btn-primary" onclick="showSaveChoiceModal('${course.id}')">Save</button>
             </div>
         `;
@@ -247,116 +234,6 @@ function displayRecommendedCourses(data) {
     });
 }
 
-// View Course Details
-function viewCourseDetails(courseIndex) {
-    if (!currentAssessmentData || !currentAssessmentData.courses || !currentAssessmentData.courses[courseIndex]) {
-        return;
-    }
-
-    const course = currentAssessmentData.courses[courseIndex];
-    const embeddingData = currentAssessmentData.embedding_data || {};
-    const courseEmbeddingData = embeddingData[course.id] || {};
-
-    let detailHTML = `
-        <div class="course-detail-header">
-            <h3>${course.name}</h3>
-            <div class="match-percentage">${Math.round(course.match_score || 0)}% Match</div>
-        </div>
-        <div class="course-detail-content">
-    `;
-
-    // Enhanced match analysis section
-    detailHTML += `
-        <div class="course-detail-section">
-            <h4>🎯 Match Analysis</h4>
-            <div class="match-breakdown">
-                <div class="match-row">
-                    <span class="match-label">Overall Compatibility:</span>
-                    <div class="match-bar">
-                        <div class="match-fill overall-fill" style="width: ${Math.round(course.match_score || 0)}%"></div>
-                        <span class="match-value">${Math.round(course.match_score || 0)}%</span>
-                    </div>
-                </div>
-                ${course.semantic_score !== undefined ? `
-                <div class="match-row">
-                    <span class="match-label">🧠 Semantic Understanding:</span>
-                    <div class="match-bar">
-                        <div class="match-fill semantic-fill" style="width: ${Math.round(course.semantic_score)}%"></div>
-                        <span class="match-value">${Math.round(course.semantic_score)}%</span>
-                    </div>
-                </div>
-                ` : ''}
-                ${course.relevance_score !== undefined ? `
-                <div class="match-row">
-                    <span class="match-label">🎯 Content Relevance:</span>
-                    <div class="match-bar">
-                        <div class="match-fill relevance-fill" style="width: ${Math.round(course.relevance_score)}%"></div>
-                        <span class="match-value">${Math.round(course.relevance_score)}%</span>
-                    </div>
-                </div>
-                ` : ''}
-                ${courseEmbeddingData.skill_match !== undefined ? `
-                <div class="match-row">
-                    <span class="match-label">💼 Skill Alignment:</span>
-                    <div class="match-bar">
-                        <div class="match-fill skill-fill" style="width: ${Math.round(courseEmbeddingData.skill_match)}%"></div>
-                        <span class="match-value">${Math.round(courseEmbeddingData.skill_match)}%</span>
-                    </div>
-                </div>
-                ` : ''}
-            </div>
-        </div>
-    `;
-
-    if (course.description) {
-        detailHTML += `
-            <div class="course-detail-section">
-                <h4>Overview</h4>
-                <p>${course.description}</p>
-            </div>
-        `;
-    }
-
-    if (course.skills_learned && course.skills_learned.length > 0) {
-        detailHTML += `
-            <div class="course-detail-section">
-                <h4>Skills You'll Learn</h4>
-                <ul>
-                    ${course.skills_learned.map(skill => `<li>${skill}</li>`).join('')}
-                </ul>
-            </div>
-        `;
-    }
-
-    if (course.career_prospects) {
-        detailHTML += `
-            <div class="course-detail-section">
-                <h4>Career Prospects</h4>
-                <p>${course.career_prospects}</p>
-            </div>
-        `;
-    }
-
-    if (course.requirements) {
-        detailHTML += `
-            <div class="course-detail-section">
-                <h4>Requirements</h4>
-                <p>${course.requirements}</p>
-            </div>
-        `;
-    }
-
-    detailHTML += `
-            <div class="course-detail-actions">
-                <button class="btn btn-primary" onclick="showSaveChoiceModal('${course.id}')">Save Course</button>
-                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
-            </div>
-        </div>
-    `;
-
-    courseDetail.innerHTML = detailHTML;
-    courseDetailModal.style.display = 'flex';
-}
 
 // Show Save Choice Modal
 function showSaveChoiceModal(courseId) {
@@ -436,11 +313,6 @@ async function saveFavoriteCourse(courseId, priority = 'saved') {
         console.error('Error saving favorite:', error);
         showNotification('An error occurred', 'error');
     }
-}
-
-// Close Modal
-function closeModal() {
-    courseDetailModal.style.display = 'none';
 }
 
 // Handle Another Assessment

@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CareerWays — describe . search . discover courses</title>
-  <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet" />
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     :root {
       --orange: #E8520A;
@@ -18,7 +26,9 @@
       --font-display: 'Anonymous Pro', monospace;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       background: var(--white);
@@ -30,24 +40,30 @@
     /* ── NAV ── */
     nav {
       position: fixed;
-      top: 0; left: 0; right: 0;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 22px 48px;
-      background: rgba(250,250,248,0.88);
+      background: rgba(250, 250, 248, 0.88);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid transparent;
       transition: border-color .3s;
     }
-    nav.scrolled { border-color: rgba(0,0,0,.08); }
+
+    nav.scrolled {
+      border-color: rgba(0, 0, 0, .08);
+    }
 
     .logo {
       display: flex;
       flex-direction: column;
       line-height: 1;
     }
+
     .logo-name {
       font-family: var(--font-display);
       font-weight: 700;
@@ -55,6 +71,7 @@
       letter-spacing: -.5px;
       color: var(--black);
     }
+
     .logo-sub {
       font-size: .62rem;
       letter-spacing: .18em;
@@ -62,7 +79,11 @@
       text-transform: lowercase;
     }
 
-    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
 
     .btn-outline {
       font-family: var(--font-display);
@@ -77,7 +98,11 @@
       cursor: pointer;
       transition: background .2s, color .2s;
     }
-    .btn-outline:hover { background: var(--black); color: var(--white); }
+
+    .btn-outline:hover {
+      background: var(--black);
+      color: var(--white);
+    }
 
     .btn-solid {
       font-family: var(--font-display);
@@ -92,7 +117,11 @@
       cursor: pointer;
       transition: background .2s, transform .15s;
     }
-    .btn-solid:hover { background: #c4430a; transform: translateY(-1px); }
+
+    .btn-solid:hover {
+      background: #c4430a;
+      transform: translateY(-1px);
+    }
 
     /* ── HERO ── */
     .hero {
@@ -114,9 +143,17 @@
       pointer-events: none;
       animation: swirlFloat 8s ease-in-out infinite;
     }
+
     @keyframes swirlFloat {
-      0%,100% { transform: translateY(-50%) rotate(0deg); }
-      50%      { transform: translateY(-52%) rotate(4deg); }
+
+      0%,
+      100% {
+        transform: translateY(-50%) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-52%) rotate(4deg);
+      }
     }
 
     .hero-inner {
@@ -141,14 +178,26 @@
       gap: 18px;
       opacity: 0;
       transform: translateY(40px);
-      animation: slideUp .7s cubic-bezier(.22,1,.36,1) forwards;
+      animation: slideUp .7s cubic-bezier(.22, 1, .36, 1) forwards;
     }
-    .hl-row:nth-child(1) { animation-delay: .1s; }
-    .hl-row:nth-child(2) { animation-delay: .22s; }
-    .hl-row:nth-child(3) { animation-delay: .34s; }
+
+    .hl-row:nth-child(1) {
+      animation-delay: .1s;
+    }
+
+    .hl-row:nth-child(2) {
+      animation-delay: .22s;
+    }
+
+    .hl-row:nth-child(3) {
+      animation-delay: .34s;
+    }
 
     @keyframes slideUp {
-      to { opacity: 1; transform: none; }
+      to {
+        opacity: 1;
+        transform: none;
+      }
     }
 
     .hl-word {
@@ -176,7 +225,7 @@
       color: var(--orange);
       margin-top: 28px;
       opacity: 0;
-      animation: slideUp .7s .5s cubic-bezier(.22,1,.36,1) forwards;
+      animation: slideUp .7s .5s cubic-bezier(.22, 1, .36, 1) forwards;
     }
 
     /* ── GET STARTED BAR ── */
@@ -192,16 +241,23 @@
       overflow: hidden;
       transition: background .2s;
     }
+
     .cta-bar::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,.12);
+      background: rgba(0, 0, 0, .12);
       transform: translateX(-100%);
       transition: transform .4s ease;
     }
-    .cta-bar:hover::before { transform: translateX(0); }
-    .cta-bar:hover { background: #c4430a; }
+
+    .cta-bar:hover::before {
+      transform: translateX(0);
+    }
+
+    .cta-bar:hover {
+      background: #c4430a;
+    }
 
     .cta-label {
       font-family: var(--font-display);
@@ -210,6 +266,7 @@
       letter-spacing: .12em;
       color: var(--white);
     }
+
     .cta-arrow {
       font-size: clamp(1.1rem, 2.2vw, 1.6rem);
       color: var(--white);
@@ -218,12 +275,16 @@
       display: inline-block;
       transition: transform .2s;
     }
-    .cta-bar:hover .cta-arrow { transform: rotate(45deg) translate(3px,-3px); }
+
+    .cta-bar:hover .cta-arrow {
+      transform: rotate(45deg) translate(3px, -3px);
+    }
 
     /* ── HOW IT WORKS ── */
     .section {
       padding: 96px 48px;
     }
+
     .section-label {
       font-family: var(--font-display);
       font-size: .7rem;
@@ -232,6 +293,7 @@
       color: var(--orange);
       margin-bottom: 16px;
     }
+
     .section-title {
       font-family: var(--font-display);
       font-weight: 700;
@@ -248,14 +310,21 @@
       margin-top: 60px;
       border: 2px solid var(--black);
     }
+
     .step {
       padding: 48px 36px;
       border-right: 2px solid var(--black);
       position: relative;
       transition: background .2s;
     }
-    .step:last-child { border-right: none; }
-    .step:hover { background: var(--orange-pale); }
+
+    .step:last-child {
+      border-right: none;
+    }
+
+    .step:hover {
+      background: var(--orange-pale);
+    }
 
     .step-num {
       font-family: var(--font-display);
@@ -265,12 +334,14 @@
       line-height: 1;
       margin-bottom: 20px;
     }
+
     .step-title {
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 1.2rem;
       margin-bottom: 12px;
     }
+
     .step-desc {
       font-size: .9rem;
       line-height: 1.65;
@@ -285,16 +356,24 @@
       border-top: 2px solid var(--black);
       border-bottom: 2px solid var(--black);
     }
+
     .marquee-track {
       display: flex;
       gap: 0;
       width: max-content;
       animation: marquee 22s linear infinite;
     }
+
     @keyframes marquee {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-50%); }
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
     }
+
     .marquee-item {
       font-family: var(--font-display);
       font-size: .8rem;
@@ -304,6 +383,7 @@
       padding: 0 32px;
       white-space: nowrap;
     }
+
     .marquee-dot {
       color: var(--orange);
       padding: 0 8px;
@@ -316,6 +396,7 @@
       gap: 2px;
       border-top: 2px solid var(--black);
     }
+
     .feature {
       padding: 56px 48px;
       border-right: 2px solid var(--black);
@@ -323,28 +404,39 @@
       position: relative;
       overflow: hidden;
     }
-    .feature:nth-child(2n) { border-right: none; }
+
+    .feature:nth-child(2n) {
+      border-right: none;
+    }
+
     .feature-accent {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 4px;
       height: 100%;
       background: var(--orange);
       transform: scaleY(0);
       transform-origin: top;
-      transition: transform .35s cubic-bezier(.22,1,.36,1);
+      transition: transform .35s cubic-bezier(.22, 1, .36, 1);
     }
-    .feature:hover .feature-accent { transform: scaleY(1); }
+
+    .feature:hover .feature-accent {
+      transform: scaleY(1);
+    }
+
     .feature-icon {
       font-size: 1.8rem;
       margin-bottom: 20px;
     }
+
     .feature-title {
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 1.1rem;
       margin-bottom: 10px;
     }
+
     .feature-desc {
       font-size: .88rem;
       line-height: 1.7;
@@ -360,6 +452,7 @@
       gap: 36px;
       border-top: 2px solid var(--black);
     }
+
     .cta-final-title {
       font-family: var(--font-display);
       font-weight: 700;
@@ -368,8 +461,17 @@
       line-height: 1;
       max-width: 640px;
     }
-    .cta-final-title span { color: var(--orange); }
-    .cta-final-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .cta-final-title span {
+      color: var(--orange);
+    }
+
+    .cta-final-actions {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
     .btn-big {
       font-family: var(--font-display);
       font-weight: 700;
@@ -381,14 +483,28 @@
       cursor: pointer;
       transition: background .2s, color .2s, transform .15s;
     }
+
     .btn-big.solid {
       background: var(--orange);
       border-color: var(--orange);
       color: var(--white);
     }
-    .btn-big.solid:hover { background: #c4430a; border-color: #c4430a; transform: translateY(-2px); }
-    .btn-big.outline { background: transparent; color: var(--black); }
-    .btn-big.outline:hover { background: var(--black); color: var(--white); }
+
+    .btn-big.solid:hover {
+      background: #c4430a;
+      border-color: #c4430a;
+      transform: translateY(-2px);
+    }
+
+    .btn-big.outline {
+      background: transparent;
+      color: var(--black);
+    }
+
+    .btn-big.outline:hover {
+      background: var(--black);
+      color: var(--white);
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -401,21 +517,25 @@
       flex-wrap: wrap;
       gap: 16px;
     }
+
     .footer-logo {
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 1rem;
       color: var(--white);
     }
+
     .footer-copy {
       font-size: .75rem;
       color: #666;
       letter-spacing: .05em;
     }
+
     .footer-links {
       display: flex;
       gap: 24px;
     }
+
     .footer-links a {
       font-size: .75rem;
       color: #888;
@@ -423,175 +543,223 @@
       letter-spacing: .06em;
       transition: color .2s;
     }
-    .footer-links a:hover { color: var(--orange); }
+
+    .footer-links a:hover {
+      color: var(--orange);
+    }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
-      nav { padding: 18px 24px; }
-      .hero-inner { padding: 120px 24px 48px; }
-      .section { padding: 64px 24px; }
-      .steps { grid-template-columns: 1fr; }
-      .step { border-right: none; border-bottom: 2px solid var(--black); }
-      .step:last-child { border-bottom: none; }
-      .features { grid-template-columns: 1fr; }
-      .feature { border-right: none; }
-      .cta-final { padding: 64px 24px; }
-      footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
-      .swirl { width: 260px; right: -40px; }
+      nav {
+        padding: 18px 24px;
+      }
+
+      .hero-inner {
+        padding: 120px 24px 48px;
+      }
+
+      .section {
+        padding: 64px 24px;
+      }
+
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .step {
+        border-right: none;
+        border-bottom: 2px solid var(--black);
+      }
+
+      .step:last-child {
+        border-bottom: none;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .feature {
+        border-right: none;
+      }
+
+      .cta-final {
+        padding: 64px 24px;
+      }
+
+      footer {
+        padding: 32px 24px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .swirl {
+        width: 260px;
+        right: -40px;
+      }
     }
   </style>
 
-    <!--PWA-->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff3b30">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="CareerWays">
-    <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
+  <!--PWA-->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff3b30">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CareerWays">
+  <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 
 
 </head>
 
-        <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
-        });
-    }
-    </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js');
+    });
+  }
+</script>
 
 
 <body>
 
-<!-- ── NAV ── -->
-<nav id="nav">
-  <div class="logo">
-    <span class="logo-name">CareerWays</span>
-    <span class="logo-sub">describe . search . discover</span>
-  </div>
-  <div class="nav-actions">
-    <a href="login.html" class="btn-outline">Log In</a>
-    <a href="login.html" class="btn-solid">Sign Up</a>
-  </div>
-</nav>
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <div class="logo">
+      <span class="logo-name">CareerWays</span>
+      <span class="logo-sub">describe . search . discover</span>
+    </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-outline">Log In</a>
+      <a href="login.html" class="btn-solid">Sign Up</a>
+    </div>
+  </nav>
 
-<!-- ── HERO ── -->
-<section class="hero">
-  <!-- decorative swirl -->
-  <svg class="swirl" viewBox="0 0 400 700" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M320 80 C420 160, 380 300, 260 340 C140 380, 80 480, 160 560 C240 640, 360 600, 340 500 C320 400, 200 420, 220 320 C240 220, 380 200, 320 80Z" stroke="#E8520A" stroke-width="48" fill="none" stroke-linecap="round"/>
-    <path d="M280 200 C360 260, 320 380, 220 400 C120 420, 100 500, 180 540" stroke="#E8520A" stroke-width="32" fill="none" stroke-linecap="round" opacity=".5"/>
-  </svg>
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <!-- decorative swirl -->
+    <svg class="swirl" viewBox="0 0 400 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M320 80 C420 160, 380 300, 260 340 C140 380, 80 480, 160 560 C240 640, 360 600, 340 500 C320 400, 200 420, 220 320 C240 220, 380 200, 320 80Z"
+        stroke="#E8520A" stroke-width="48" fill="none" stroke-linecap="round" />
+      <path d="M280 200 C360 260, 320 380, 220 400 C120 420, 100 500, 180 540" stroke="#E8520A" stroke-width="32"
+        fill="none" stroke-linecap="round" opacity=".5" />
+    </svg>
 
-  <div class="hero-inner">
-    <div class="headline">
-      <div class="hl-row">
-        <span class="hl-word">discribe</span>
-        <span class="hl-dot"></span>
+    <div class="hero-inner">
+      <div class="headline">
+        <div class="hl-row">
+          <span class="hl-word">discribe</span>
+          <span class="hl-dot"></span>
+        </div>
+        <div class="hl-row">
+          <span class="hl-word">search</span>
+          <span class="hl-dot"></span>
+        </div>
+        <div class="hl-row">
+          <span class="hl-word">discover</span>
+          <span class="hl-dot"></span>
+        </div>
       </div>
-      <div class="hl-row">
-        <span class="hl-word">search</span>
-        <span class="hl-dot"></span>
+      <p class="tagline">discover your college course with us!</p>
+    </div>
+
+    <a href="login.html" class="cta-bar" id="start">
+      <span class="cta-label">GET STARTED</span>
+      <span class="cta-arrow">↗</span>
+    </a>
+  </section>
+
+  <!-- ── MARQUEE ── -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <!-- duplicated for seamless loop -->
+      <span class="marquee-item">Describe your ideal course</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Search college programs</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Discover your degree path</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Enroll in what matters</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Describe your ideal course</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Search college programs</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Discover your degree path</span><span class="marquee-dot">■</span>
+      <span class="marquee-item">Enroll in what matters</span><span class="marquee-dot">■</span>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="section">
+    <p class="section-label">How It Works</p>
+    <h2 class="section-title">Three steps to your perfect college course.</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Describe</div>
+        <p class="step-desc">Tell us what you want to study — your interests, preferred schedule, college, or field. No
+          forms, just plain language.</p>
       </div>
-      <div class="hl-row">
-        <span class="hl-word">discover</span>
-        <span class="hl-dot"></span>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Search</div>
+        <p class="step-desc">Our engine scans college course catalogs, matching your description to programs and
+          subjects that actually fit your goals.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Discover</div>
+        <p class="step-desc">Browse curated course results, save your favorites, and explore the academic path that's
+          right for you.</p>
       </div>
     </div>
-    <p class="tagline">discover your college course with us!</p>
-  </div>
+  </section>
 
-  <a href="login.html" class="cta-bar" id="start">
-    <span class="cta-label">GET STARTED</span>
-    <span class="cta-arrow">↗</span>
-  </a>
-</section>
-
-<!-- ── MARQUEE ── -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <!-- duplicated for seamless loop -->
-    <span class="marquee-item">Describe your ideal course</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Search college programs</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Discover your degree path</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Enroll in what matters</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Describe your ideal course</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Search college programs</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Discover your degree path</span><span class="marquee-dot">■</span>
-    <span class="marquee-item">Enroll in what matters</span><span class="marquee-dot">■</span>
-  </div>
-</div>
-
-<!-- ── HOW IT WORKS ── -->
-<section class="section">
-  <p class="section-label">How It Works</p>
-  <h2 class="section-title">Three steps to your perfect college course.</h2>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01</div>
-      <div class="step-title">Describe</div>
-      <p class="step-desc">Tell us what you want to study — your interests, preferred schedule, college, or field. No forms, just plain language.</p>
+  <!-- ── FEATURES ── -->
+  <section>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-accent"></div>
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Smart Matching</div>
+        <p class="feature-desc">Semantic search understands what you want to study, not just keywords. Find courses
+          you'd never discover browsing a catalog alone.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-accent"></div>
+        <div class="feature-icon">🗂️</div>
+        <div class="feature-title">Saved Courses</div>
+        <p class="feature-desc">Bookmark courses that align with your goals and revisit them anytime. Build your
+          personal learning library effortlessly.</p>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <div class="step-title">Search</div>
-      <p class="step-desc">Our engine scans college course catalogs, matching your description to programs and subjects that actually fit your goals.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <div class="step-title">Discover</div>
-      <p class="step-desc">Browse curated course results, save your favorites, and explore the academic path that's right for you.</p>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- ── FEATURES ── -->
-<section>
-  <div class="features">
-    <div class="feature">
-      <div class="feature-accent"></div>
-      <div class="feature-icon">🎯</div>
-      <div class="feature-title">Smart Matching</div>
-      <p class="feature-desc">Semantic search understands what you want to study, not just keywords. Find courses you'd never discover browsing a catalog alone.</p>
+  <!-- ── FINAL CTA ── -->
+  <section class="cta-final">
+    <h2 class="cta-final-title">Ready to <span>discover</span> your perfect course?</h2>
+    <div class="cta-final-actions">
+      <a href="login.html" class="btn-big solid">Browse Courses — It's Free</a>
+      <button class="btn-big outline">See How It Works</button>
     </div>
-    <div class="feature">
-      <div class="feature-accent"></div>
-      <div class="feature-icon">🗂️</div>
-      <div class="feature-title">Saved Courses</div>
-      <p class="feature-desc">Bookmark courses that align with your goals and revisit them anytime. Build your personal learning library effortlessly.</p>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="footer-logo">CareerWays</span>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
     </div>
-  </div>
-</section>
+    <span class="footer-copy">© 2026 CareerWays. All rights reserved.</span>
+  </footer>
 
-<!-- ── FINAL CTA ── -->
-<section class="cta-final">
-  <h2 class="cta-final-title">Ready to <span>discover</span> your perfect course?</h2>
-  <div class="cta-final-actions">
-    <a href="login.html" class="btn-big solid">Browse Courses — It's Free</a>
-    <button class="btn-big outline">See How It Works</button>
-  </div>
-</section>
-
-<!-- ── FOOTER ── -->
-<footer>
-  <span class="footer-logo">CareerWays</span>
-  <div class="footer-links">
-    <a href="#">About</a>
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-    <a href="#">Contact</a>
-  </div>
-  <span class="footer-copy">© 2026 CareerWays. All rights reserved.</span>
-</footer>
-
-<script>
-  // Nav scroll effect
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 10);
-  });
-</script>
+  <script>
+    // Nav scroll effect
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
 </body>
+
 </html>
