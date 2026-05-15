@@ -159,10 +159,70 @@
     .hero-inner {
       flex: 1;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
       padding: 140px 48px 60px;
-      max-width: 900px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .hero-copy {
+      max-width: 55%;
+      min-width: 320px;
+    }
+
+    .hero-qr {
+      display: flex;
+      justify-content: center;
+      width: min(360px, 100%);
+    }
+
+    .qr-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      border: 2px solid var(--black);
+      border-radius: 32px;
+      padding: 32px;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .qr-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+    }
+
+    .qr-image {
+      width: 100%;
+      max-width: 260px;
+      aspect-ratio: 1 / 1;
+      padding: 18px;
+      border-radius: 28px;
+      border: 2px dashed rgba(0, 0, 0, 0.12);
+      background: linear-gradient(180deg, #fff, #f7f7f7);
+      display: grid;
+      place-items: center;
+    }
+
+    .qr-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 18px;
+    }
+
+    .qr-note {
+      font-size: .95rem;
+      color: #444;
+      text-align: center;
+      line-height: 1.5;
     }
 
     /* stacked headline */
@@ -647,21 +707,30 @@
     </svg>
 
     <div class="hero-inner">
-      <div class="headline">
-        <div class="hl-row">
-          <span class="hl-word">discribe</span>
-          <span class="hl-dot"></span>
+      <div class="hero-copy">
+        <div class="headline">
+          <div class="hl-row">
+            <span class="hl-word">discribe</span>
+            <span class="hl-dot"></span>
+          </div>
+          <div class="hl-row">
+            <span class="hl-word">search</span>
+            <span class="hl-dot"></span>
+          </div>
+          <div class="hl-row">
+            <span class="hl-word">discover</span>
+            <span class="hl-dot"></span>
+          </div>
         </div>
-        <div class="hl-row">
-          <span class="hl-word">search</span>
-          <span class="hl-dot"></span>
-        </div>
-        <div class="hl-row">
-          <span class="hl-word">discover</span>
-          <span class="hl-dot"></span>
+        <p class="tagline">discover your college course with us!</p>
+      </div>
+      <div class="hero-qr">
+        <div class="qr-card">
+          <div class="qr-title">Scan to open login</div>
+          <div id="qrCode" class="qr-image" aria-label="Login QR Code"></div>
+          <p class="qr-note">Use your phone to open the login page instantly.</p>
         </div>
       </div>
-      <p class="tagline">discover your college course with us!</p>
     </div>
 
     <a href="login.html" class="cta-bar" id="start">
@@ -753,11 +822,33 @@
     <span class="footer-copy">© 2026 CareerWays. All rights reserved.</span>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <script>
     // Nav scroll effect
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const qrContainer = document.getElementById('qrCode');
+      if (!qrContainer || typeof QRCode === 'undefined') {
+        return;
+      }
+
+      const loginUrl = `${window.location.origin}${window.location.pathname.replace(/index\.html$/, '')}login.html`;
+
+      QRCode.toDataURL(loginUrl, { width: 260, margin: 1 })
+        .then((url) => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Scan to open the CareerWays login page';
+          qrContainer.appendChild(img);
+        })
+        .catch((error) => {
+          console.error('QR code generation failed:', error);
+          qrContainer.textContent = 'Scan to open the login page';
+        });
     });
   </script>
 </body>
