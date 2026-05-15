@@ -38,7 +38,7 @@ function checkAuthentication() {
     const userType = localStorage.getItem('userType');
 
     if (!userType) {
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
         return;
     }
 }
@@ -305,7 +305,7 @@ function handleLogout() {
         sessionStorage.clear();
         showNotification('Logged out successfully', 'success');
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }, 1000);
     });
 }

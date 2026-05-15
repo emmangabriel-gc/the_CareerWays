@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── Auth ──────────────────────────────────────
 function checkAuthentication() {
     const userType = localStorage.getItem('userType');
-    if (!userType) { window.location.href = 'index.html'; return; }
+    if (!userType) { window.location.href = 'login.html'; return; }
     if (userType !== 'registered') { window.location.href = 'dashboard.html'; }
 }
 
@@ -385,7 +385,7 @@ function handleLogout(e) {
         if (!confirmed) return;
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     });
 }
 

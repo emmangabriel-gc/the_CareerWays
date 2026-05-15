@@ -211,7 +211,7 @@ async function handleResetPassword(e) {
 
         showNotification('Password reset successfully! Redirecting...', 'success');
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }, 2000);
 
     } catch (error) {

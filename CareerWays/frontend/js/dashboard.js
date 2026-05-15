@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAuthentication() {
     const userType = localStorage.getItem('userType');
     if (!userType) {
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     }
 }
 
@@ -314,7 +314,7 @@ function handleLogout(e) {
         localStorage.clear();
         sessionStorage.clear();
         showNotification('Logged out successfully', 'success');
-        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+        setTimeout(() => { window.location.href = 'login.html'; }, 800);
     });
 }
 
@@ -373,7 +373,7 @@ async function handleDeleteAccount() {
             localStorage.clear();
             sessionStorage.clear();
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
             }, 2000);
         } else {
             const errorData = await response.json();

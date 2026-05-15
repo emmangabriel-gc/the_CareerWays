@@ -71,7 +71,7 @@ function handleLogout() {
         if (!confirmed) return;
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = 'index.html';
+        window.location.href = 'login.html';
     });
 }
 
