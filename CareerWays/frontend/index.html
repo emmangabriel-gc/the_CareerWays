@@ -159,8 +159,8 @@
     .hero-inner {
       flex: 1;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: space-between;
       gap: 48px;
       padding: 140px 48px 60px;
       max-width: 1200px;
@@ -170,7 +170,6 @@
     .hero-copy {
       max-width: 55%;
       min-width: 320px;
-      text-align: center;
     }
 
     .hero-qr {
@@ -617,16 +616,19 @@
 
       .hero-inner {
         padding: 120px 24px 48px;
+        flex-direction: column;
         gap: 32px;
       }
 
       .hero-copy {
         max-width: 100%;
+        text-align: center;
       }
 
       .hero-qr {
         width: 100%;
         max-width: 320px;
+        margin: 0 auto;
       }
 
       .qr-card {
