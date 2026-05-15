@@ -44,6 +44,16 @@ def mail_credentials_configured():
         return False
 
 
+def email_sending_configured():
+    """True if either Brevo API or Flask-Mail SMTP is configured."""
+    try:
+        if (current_app.config.get('BREVO_API_KEY') or '').strip():
+            return True
+        return mail_credentials_configured()
+    except RuntimeError:
+        return False
+
+
 def _database_unavailable_response(log_event, exc=None):
     """Safe JSON when Postgres/Supabase is misconfigured (do not echo connection strings)."""
     _log_mail_error(log_event, exc)
@@ -85,7 +95,7 @@ def _send_message_with_timeout(msg, timeout_seconds=None):
         current_app.config.get('MAIL_TIMEOUT', 30) or 30)
     result = {'success': False, 'error': None}
     completed = threading.Event()
-    
+
     # Capture the app context
     app_context = current_app.app_context()
 
@@ -143,9 +153,8 @@ def verify_token(token):
 def send_verification_email(email, token, user_name):
     frontend_url = os.getenv(
         'FRONTEND_URL', 'https://the-career-ways.vercel.app')
-    try:
-        subject = 'CareerWays – Please verify your email'
-        html = f"""
+    subject = 'CareerWays – Please verify your email'
+    html = f"""
         <html>
             <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
                 <div style="background-color: white; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto;">
@@ -166,7 +175,45 @@ def send_verification_email(email, token, user_name):
                 </div>
             </body>
         </html>
-        """
+    """
+
+    brevo_api_key = current_app.config.get('BREVO_API_KEY')
+    if brevo_api_key:
+        try:
+            sender_email = current_app.config.get('MAIL_USERNAME') or current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+            payload = {
+                "sender": {
+                    "name": "CareerWays",
+                    "email": sender_email
+                },
+                "to": [{"email": email}],
+                "subject": subject,
+                "htmlContent": html
+            }
+
+            headers = {
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            }
+
+            response = requests.post(
+                "https://api.brevo.com/v3/smtp/email",
+                json=payload,
+                headers=headers,
+                timeout=30
+            )
+
+            if response.status_code in (200, 201):
+                return True
+            _log_mail_error(
+                f"Brevo API verification email error: {response.status_code} - {response.text}")
+            return False
+        except Exception as e:
+            _log_mail_error("Error sending verification email via Brevo API", e)
+            return False
+
+    try:
         msg = Message(subject=subject, recipients=[email], html=html)
         return _send_message_with_timeout(msg)
     except Exception as e:
@@ -206,10 +253,11 @@ def send_otp_email(email, otp, user_name):
         """
 
         # Brevo API payload
+        sender_email = current_app.config.get('MAIL_USERNAME') or current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
         payload = {
             "sender": {
                 "name": "CareerWays",
-                "email": current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+                "email": sender_email
             },
             "to": [{"email": email}],
             "subject": subject,
@@ -232,7 +280,8 @@ def send_otp_email(email, otp, user_name):
         if response.status_code == 201:
             return True
         else:
-            _log_mail_error(f"Brevo API error: {response.status_code} - {response.text}")
+            _log_mail_error(
+                f"Brevo API error: {response.status_code} - {response.text}")
             return False
 
     except Exception as e:
@@ -269,10 +318,9 @@ def signup():
         db.session.add(user)
         db.session.flush()
 
-        if not mail_credentials_configured():
-            # If email SMTP is not configured, allow signup and mark the account as verified
-            # so users can log in immediately. This avoids signup blockers in environments
-            # where verification emails cannot be delivered.
+        if not email_sending_configured():
+            # If no email provider is configured, allow signup and mark the account as verified
+            # so users can log in immediately.
             user.is_verified = True
             user.verification_token = None
             user.verification_token_expires = None
@@ -280,7 +328,7 @@ def signup():
             return jsonify({
                 'message': (
                     'Account created. Email verification is disabled on this server, so you can log in immediately. '
-                    'Configure MAIL_USERNAME and MAIL_PASSWORD to enable verification emails.'
+                    'Configure BREVO_API_KEY or MAIL_USERNAME and MAIL_PASSWORD to enable verification emails.'
                 )
             }), 200
 
@@ -385,12 +433,12 @@ def resend_verification():
         user.verification_token = verification_token
         user.verification_token_expires = datetime.utcnow() + timedelta(hours=24)
 
-        if not mail_credentials_configured():
+        if not email_sending_configured():
             db.session.rollback()
             return jsonify({
                 'message': (
                     'Email is not configured on the server. '
-                    'Set MAIL_USERNAME and MAIL_PASSWORD in the server environment.'
+                    'Set BREVO_API_KEY or MAIL_USERNAME and MAIL_PASSWORD in the server environment.'
                 )
             }), 503
 
@@ -571,7 +619,7 @@ def verify_otp():
 def reset_password():
     if request.method == 'OPTIONS':
         return Response(status=204)
-    
+
     try:
         data = request.get_json()
         if not data or not all(k in data for k in ['email', 'reset_token', 'new_password']):
