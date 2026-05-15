@@ -225,19 +225,6 @@ def create_app():
         resp.headers['Access-Control-Max-Age'] = '86400'
         return resp
 
-    @app.before_request
-    def _cors_preflight():
-        if request.method != 'OPTIONS':
-            return None
-        if not request.path.startswith('/api/'):
-            return None
-        origin = (request.headers.get('Origin') or '').strip()
-        if not _origin_allowed(origin):
-            return None
-        # 200 avoids strict clients/proxies that mishandle empty 204 preflights
-        r = app.make_response('', 200)
-        return _apply_cors_headers(r)
-
     @app.after_request
     def _cors_after(resp):
         # Flask-CORS can miss error paths; always attach when Origin is allowed

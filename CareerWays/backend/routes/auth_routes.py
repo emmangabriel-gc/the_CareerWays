@@ -2,7 +2,7 @@
 Authentication Routes for CareerWays
 """
 
-from flask import Blueprint, request, jsonify, redirect, current_app
+from flask import Blueprint, request, jsonify, redirect, current_app, Response
 from app import db, mail
 from models import User
 from flask_mail import Message
@@ -436,11 +436,8 @@ def logout():
     return jsonify({'message': 'Logged out successfully'}), 200
 
 
-@auth_bp.route('/forgot-password', methods=['POST', 'OPTIONS'])
+@auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
-    if request.method == 'OPTIONS':
-        return '', 204
-    
     try:
         data = request.get_json(silent=True)
         if not isinstance(data, dict) or 'email' not in data:
@@ -495,11 +492,8 @@ def forgot_password():
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
 
-@auth_bp.route('/verify-otp', methods=['POST', 'OPTIONS'])
+@auth_bp.route('/verify-otp', methods=['POST'])
 def verify_otp():
-    if request.method == 'OPTIONS':
-        return '', 204
-    
     try:
         data = request.get_json()
         if not data or not all(k in data for k in ['email', 'otp']):
@@ -533,11 +527,8 @@ def verify_otp():
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
 
-@auth_bp.route('/reset-password', methods=['POST', 'OPTIONS'])
+@auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
-    if request.method == 'OPTIONS':
-        return '', 204
-    
     try:
         data = request.get_json()
         if not data or not all(k in data for k in ['email', 'reset_token', 'new_password']):
