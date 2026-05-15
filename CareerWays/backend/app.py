@@ -171,6 +171,10 @@ def create_app():
     app.config['MAIL_TIMEOUT'] = int(
         _strip_env_quotes(os.getenv('MAIL_TIMEOUT', '30')))
 
+    # Brevo API configuration
+    app.config['BREVO_API_KEY'] = _strip_env_quotes(
+        os.getenv('BREVO_API_KEY', ''))
+
     # Initialize extensions
     db.init_app(app)
     mail.init_app(app)

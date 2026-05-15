@@ -13,6 +13,7 @@ import threading
 import uuid
 import random
 import string
+import requests
 import logging
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -179,6 +180,11 @@ def generate_otp():
 
 def send_otp_email(email, otp, user_name):
     try:
+        brevo_api_key = current_app.config.get('BREVO_API_KEY')
+        if not brevo_api_key:
+            _log_mail_error("BREVO_API_KEY not configured")
+            return False
+
         subject = 'CareerWays - Password Reset OTP'
         html = f"""
         <html>
@@ -198,10 +204,39 @@ def send_otp_email(email, otp, user_name):
             </body>
         </html>
         """
-        msg = Message(subject=subject, recipients=[email], html=html)
-        return _send_message_with_timeout(msg)
+
+        # Brevo API payload
+        payload = {
+            "sender": {
+                "name": "CareerWays",
+                "email": current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+            },
+            "to": [{"email": email}],
+            "subject": subject,
+            "htmlContent": html
+        }
+
+        headers = {
+            "accept": "application/json",
+            "api-key": brevo_api_key,
+            "content-type": "application/json"
+        }
+
+        response = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            json=payload,
+            headers=headers,
+            timeout=30
+        )
+
+        if response.status_code == 201:
+            return True
+        else:
+            _log_mail_error(f"Brevo API error: {response.status_code} - {response.text}")
+            return False
+
     except Exception as e:
-        _log_mail_error("Error sending OTP email", e)
+        _log_mail_error("Error sending OTP email via Brevo API", e)
         return False
 
 
