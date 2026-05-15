@@ -161,6 +161,13 @@ function updateCharCount() {
     }
 }
 
+function confirmAction(message, options = {}) {
+    if (typeof window.showConfirm === 'function') {
+        return window.showConfirm(message, options);
+    }
+    return Promise.resolve(window.confirm(message));
+}
+
 // Handle Submit Assessment
 async function handleSubmitAssessment(e) {
     e.preventDefault();
@@ -275,7 +282,7 @@ function handleViewResults() {
 
 // Handle Back
 function handleBack() {
-    showConfirm('Are you sure you want to go back? Your current assessment will not be saved.', {
+    confirmAction('Are you sure you want to go back? Your current assessment will not be saved.', {
         title: 'Leave assessment?',
         confirmText: 'Yes, leave',
         cancelText: 'Continue assessment'
@@ -287,7 +294,7 @@ function handleBack() {
 
 // Handle Logout
 function handleLogout() {
-    showConfirm('Are you sure you want to log out?', {
+    confirmAction('Are you sure you want to log out?', {
         title: 'Confirm logout',
         confirmText: 'Log out',
         cancelText: 'Stay logged in',
