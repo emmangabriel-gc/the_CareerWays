@@ -79,14 +79,19 @@ def get_public_backend_url():
 
 
 def _send_message_with_timeout(msg, timeout_seconds=None):
+    from flask import current_app
     timeout_seconds = timeout_seconds or int(
         current_app.config.get('MAIL_TIMEOUT', 30) or 30)
     result = {'success': False, 'error': None}
     completed = threading.Event()
+    
+    # Capture the app context
+    app_context = current_app.app_context()
 
     def _send():
         try:
-            mail.send(msg)
+            with app_context:
+                mail.send(msg)
             result['success'] = True
         except Exception as exc:
             result['error'] = exc
