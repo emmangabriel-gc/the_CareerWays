@@ -180,7 +180,7 @@ def send_verification_email(email, token, user_name):
     brevo_api_key = current_app.config.get('BREVO_API_KEY')
     if brevo_api_key:
         try:
-            sender_email = current_app.config.get('MAIL_USERNAME') or current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+            sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME', 'noreply@careerways.com')
             payload = {
                 "sender": {
                     "name": "CareerWays",
@@ -253,7 +253,7 @@ def send_otp_email(email, otp, user_name):
         """
 
         # Brevo API payload
-        sender_email = current_app.config.get('MAIL_USERNAME') or current_app.config.get('MAIL_DEFAULT_SENDER', 'noreply@careerways.com')
+        sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME', 'noreply@careerways.com')
         payload = {
             "sender": {
                 "name": "CareerWays",
@@ -547,13 +547,13 @@ def forgot_password():
         user.password_reset_otp = otp
         user.password_reset_otp_expires = otp_expires
 
-        if not mail_credentials_configured():
+        if not email_sending_configured():
             db.session.rollback()
             return jsonify({
                 'code': 'MAIL_NOT_CONFIGURED',
                 'message': (
                     'Password reset email is not configured on the server. '
-                    'Set MAIL_USERNAME and MAIL_PASSWORD in the server environment, then try again.'
+                    'Set BREVO_API_KEY or MAIL_USERNAME and MAIL_PASSWORD in the server environment, then try again.'
                 )
             }), 503
 
