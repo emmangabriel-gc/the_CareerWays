@@ -601,16 +601,6 @@ def reset_password():
         user.password_reset_expires = None
         db.session.commit()
 
-        try:
-            msg = Message(
-                subject='CareerWays - Password Changed Successfully',
-                recipients=[email],
-                html=f"<p>Hi {user.name}, your password has been reset successfully.</p>"
-            )
-            mail.send(msg)
-        except Exception as e:
-            _log_mail_error("password-changed notification failed", e)
-
         return jsonify({'message': 'Password reset successful. Please log in with your new password.'}), 200
 
     except Exception as e:
