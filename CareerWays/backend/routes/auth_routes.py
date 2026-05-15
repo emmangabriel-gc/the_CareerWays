@@ -180,7 +180,8 @@ def send_verification_email(email, token, user_name):
     brevo_api_key = current_app.config.get('BREVO_API_KEY')
     if brevo_api_key:
         try:
-            sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME', 'noreply@careerways.com')
+            sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get(
+                'MAIL_USERNAME', 'noreply@careerways.com')
             payload = {
                 "sender": {
                     "name": "CareerWays",
@@ -210,7 +211,8 @@ def send_verification_email(email, token, user_name):
                 f"Brevo API verification email error: {response.status_code} - {response.text}")
             return False
         except Exception as e:
-            _log_mail_error("Error sending verification email via Brevo API", e)
+            _log_mail_error(
+                "Error sending verification email via Brevo API", e)
             return False
 
     try:
@@ -253,7 +255,8 @@ def send_otp_email(email, otp, user_name):
         """
 
         # Brevo API payload
-        sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get('MAIL_USERNAME', 'noreply@careerways.com')
+        sender_email = current_app.config.get('MAIL_DEFAULT_SENDER') or current_app.config.get(
+            'MAIL_USERNAME', 'noreply@careerways.com')
         payload = {
             "sender": {
                 "name": "CareerWays",
@@ -343,7 +346,7 @@ def signup():
 
         db.session.commit()
 
-        return jsonify({'message': 'Account created. Please check your email to verify your account.'}), 200
+        return jsonify({'message': 'Account created successfully. You can now log in with your credentials.'}), 200
 
     except SQLAlchemyError as e:
         db.session.rollback()
