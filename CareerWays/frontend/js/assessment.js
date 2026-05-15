@@ -275,21 +275,32 @@ function handleViewResults() {
 
 // Handle Back
 function handleBack() {
-    if (confirm('Are you sure you want to go back? Your current assessment will not be saved.')) {
+    showConfirm('Are you sure you want to go back? Your current assessment will not be saved.', {
+        title: 'Leave assessment?',
+        confirmText: 'Yes, leave',
+        cancelText: 'Continue assessment'
+    }).then((confirmed) => {
+        if (!confirmed) return;
         window.location.href = 'dashboard.html';
-    }
+    });
 }
 
 // Handle Logout
 function handleLogout() {
-    if (confirm('Are you sure you want to log out?')) {
+    showConfirm('Are you sure you want to log out?', {
+        title: 'Confirm logout',
+        confirmText: 'Log out',
+        cancelText: 'Stay logged in',
+        danger: true
+    }).then((confirmed) => {
+        if (!confirmed) return;
         localStorage.clear();
         sessionStorage.clear();
         showNotification('Logged out successfully', 'success');
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 1000);
-    }
+    });
 }
 
 // Show Notification

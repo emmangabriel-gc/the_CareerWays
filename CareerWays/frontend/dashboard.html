@@ -20,13 +20,13 @@
     <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 </head>
 
-        <script>
+<script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js');
         });
     }
-    </script>
+</script>
 
 <body>
     <div class="cw-layout">
@@ -115,7 +115,7 @@
                         <p>Start exploring courses that match your interests, skills, and career goals.</p>
                     </div>
 
-                    
+
                     <!-- Start Assessment -->
                     <div class="cw-assessment-card">
                         <div>
@@ -126,7 +126,7 @@
                         <button class="cw-btn-primary" id="startAssessmentBtn">Start Assessment</button>
                     </div>
 
-                    
+
                     <!-- Recent assessments preview -->
                     <div class="cw-section">
                         <div class="cw-section-header">
@@ -209,6 +209,7 @@
     <div id="notification" class="notification"></div>
 
     <script src="js/api-config.js"></script>
+    <script src="js/modal.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 

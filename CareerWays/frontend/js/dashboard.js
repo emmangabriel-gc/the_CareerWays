@@ -85,19 +85,19 @@ function loadUserData() {
 // ── Event listeners ───────────────────────────
 function setupEventListeners() {
     logoutBtn.addEventListener('click', handleLogout);
-    
+
     // Toggle logout button on user name click
     if (userRow) {
         userRow.addEventListener('click', toggleLogoutButton);
     }
-    
+
     // Close logout button when clicking outside
     document.addEventListener('click', (e) => {
         if (logoutBtn && userRow && !userRow.contains(e.target) && !logoutBtn.contains(e.target)) {
             logoutBtn.style.display = 'none';
         }
     });
-    
+
     startAssessmentBtn.addEventListener('click', handleStartAssessment);
 
     navDashboard.addEventListener('click', (e) => { e.preventDefault(); switchView('dashboard'); });
@@ -174,7 +174,7 @@ async function loadPreviousAssessments() {
 
             // Sort assessments by date (newest first)
             assessments.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
+
             const html = assessments.map(a => buildAssessmentCard(a)).join('');
 
             // Dashboard shows max 3
@@ -201,11 +201,11 @@ async function loadPreviousAssessments() {
 function buildAssessmentCard(assessment) {
     const courses = assessment.courses || [];
     const date = new Date(assessment.date).toLocaleDateString();
-    
+
     // Find the most compatible course within this assessment
     let mostCompatibleCourse = null;
     let highestScore = 0;
-    
+
     courses.forEach(course => {
         const score = course.match_score || 0;
         if (score > highestScore) {
@@ -213,7 +213,7 @@ function buildAssessmentCard(assessment) {
             mostCompatibleCourse = course;
         }
     });
-    
+
     const bestFitCourse = mostCompatibleCourse ? mostCompatibleCourse.name : (assessment.best_fit_course || 'Not available');
     const bestFitScore = Math.round(mostCompatibleCourse ? mostCompatibleCourse.match_score : (assessment.best_fit_score || 0));
     const courseCount = courses.length;
@@ -243,7 +243,13 @@ function viewAssessmentResult(assessmentId) {
 
 // ── Delete assessment ─────────────────────────
 async function deleteAssessment(assessmentId) {
-    if (!confirm('Are you sure you want to delete this assessment?')) return;
+    const confirmed = await showConfirm('Are you sure you want to delete this assessment?', {
+        title: 'Delete assessment',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        danger: true
+    });
+    if (!confirmed) return;
 
     const token = localStorage.getItem('token');
 
@@ -298,27 +304,54 @@ function handleStartAssessment() {
 // ── Logout ────────────────────────────────────
 function handleLogout(e) {
     e.preventDefault();
-    if (confirm('Are you sure you want to log out?')) {
+    showConfirm('Are you sure you want to log out?', {
+        title: 'Confirm logout',
+        confirmText: 'Log out',
+        cancelText: 'Stay logged in',
+        danger: true
+    }).then((confirmed) => {
+        if (!confirmed) return;
         localStorage.clear();
         sessionStorage.clear();
         showNotification('Logged out successfully', 'success');
         setTimeout(() => { window.location.href = 'index.html'; }, 800);
-    }
+    });
 }
 
 // ── Delete Account ────────────────────────────
 async function handleDeleteAccount() {
-    if (!confirm('Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data.')) {
-        return;
-    }
+    const firstConfirm = await showConfirm(
+        'Are you sure you want to delete your account? This action cannot be undone and will permanently remove all your data.',
+        {
+            title: 'Delete account',
+            confirmText: 'Yes, delete',
+            cancelText: 'Keep account',
+            danger: true
+        }
+    );
+    if (!firstConfirm) return;
 
-    if (!confirm('This is your final warning. All your assessments, favorites, and profile data will be permanently deleted. Are you absolutely sure?')) {
-        return;
-    }
+    const finalConfirm = await showConfirm(
+        'This is your final warning. All your assessments, favorites, and profile data will be permanently deleted. Are you absolutely sure?',
+        {
+            title: 'Final confirmation',
+            confirmText: 'Delete forever',
+            cancelText: 'Cancel',
+            danger: true
+        }
+    );
+    if (!finalConfirm) return;
 
-    // Ask for password confirmation
-    const password = prompt('Please enter your password to confirm account deletion:');
-    if (!password || password.trim() === '') {
+    const password = await showPrompt('Please enter your password to confirm account deletion:', {
+        title: 'Confirm deletion',
+        confirmText: 'Submit',
+        cancelText: 'Cancel',
+        inputType: 'password',
+        inputLabel: 'Password',
+        placeholder: 'Enter your password'
+    });
+
+    if (!password) {
         showNotification('Password is required to delete account', 'error');
         return;
     }

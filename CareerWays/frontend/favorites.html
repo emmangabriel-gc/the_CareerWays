@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Favorites - CareerWays</title>
-    <link href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/favorites.css">
@@ -20,13 +23,13 @@
 </head>
 
 
-        <script>
+<script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js');
         });
     }
-    </script>
+</script>
 
 
 <body>
@@ -41,31 +44,49 @@
 
             <nav class="cw-nav">
                 <a href="dashboard.html" class="cw-nav-item" id="navDashboard">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="1" y="1" width="6" height="6" rx="1" />
+                        <rect x="9" y="1" width="6" height="6" rx="1" />
+                        <rect x="1" y="9" width="6" height="6" rx="1" />
+                        <rect x="9" y="9" width="6" height="6" rx="1" />
+                    </svg>
                     Dashboard
                 </a>
                 <a href="dashboard.html" class="cw-nav-item" id="navAssessments">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1,11 5,7 8,9 12,4 15,6"/><line x1="1" y1="15" x2="15" y2="15"/></svg>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="1,11 5,7 8,9 12,4 15,6" />
+                        <line x1="1" y1="15" x2="15" y2="15" />
+                    </svg>
                     Recent Assessments
                 </a>
                 <a href="#" class="cw-nav-item active" id="navFavorites">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 1.9.7-4L2.2 5.7l4-.6z"/></svg>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 1.9.7-4L2.2 5.7l4-.6z" />
+                    </svg>
                     Favorites
                 </a>
                 <a href="dashboard.html#settings" class="cw-nav-item" id="navSettings">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06"/></svg>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="8" cy="8" r="2.5" />
+                        <path
+                            d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M3.05 3.05l1.06 1.06M11.89 11.89l1.06 1.06M3.05 12.95l1.06-1.06M11.89 4.11l1.06-1.06" />
+                    </svg>
                     Settings
                 </a>
             </nav>
 
             <div class="cw-sidebar-footer">
-                <hr class="cw-divider"/>
+                <hr class="cw-divider" />
                 <div class="cw-user-row">
                     <div class="cw-avatar" id="sidebarAvatar">U</div>
                     <span class="cw-user-name" id="sidebarUserName">User</span>
                 </div>
                 <a href="#" class="cw-nav-item cw-logout" id="logoutBtn">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><polyline points="10,11 14,8 10,5"/><line x1="14" y1="8" x2="6" y2="8"/></svg>
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3" />
+                        <polyline points="10,11 14,8 10,5" />
+                        <line x1="14" y1="8" x2="6" y2="8" />
+                    </svg>
                     Log out
                 </a>
             </div>
@@ -82,7 +103,8 @@
                 <button class="cw-burger" id="burgerBtn">
                     <span></span><span></span><span></span>
                 </button>
-                <span class="cw-mobile-logo"><span class="logo-career">Career</span><span class="logo-ways">Ways</span></span>
+                <span class="cw-mobile-logo"><span class="logo-career">Career</span><span
+                        class="logo-ways">Ways</span></span>
                 <span class="cw-mobile-user" id="mobileUserName"></span>
             </header>
 
@@ -100,7 +122,11 @@
                 <!-- Search & filter bar -->
                 <div class="fav-toolbar">
                     <div class="fav-search-wrap">
-                        <svg class="fav-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
+                        <svg class="fav-search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <circle cx="6.5" cy="6.5" r="4" />
+                            <line x1="10" y1="10" x2="14" y2="14" />
+                        </svg>
                         <input type="text" id="searchInput" class="fav-search" placeholder="Search saved courses…">
                     </div>
                     <select id="sortSelect" class="fav-sort">
@@ -118,7 +144,10 @@
                 <!-- Empty state -->
                 <div id="emptyState" class="fav-empty" style="display:none;">
                     <div class="fav-empty-icon">
-                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M24 4l5.4 10.8 12 1.7-8.7 8.5 2.1 12L24 31.5l-10.8 5.5 2.1-12L6.6 16.5l12-1.7z"/></svg>
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="48"
+                            height="48">
+                            <path d="M24 4l5.4 10.8 12 1.7-8.7 8.5 2.1 12L24 31.5l-10.8 5.5 2.1-12L6.6 16.5l12-1.7z" />
+                        </svg>
                     </div>
                     <p class="fav-empty-title">No favorites yet</p>
                     <p class="fav-empty-sub">Save courses from your assessment results and they'll appear here.</p>
@@ -128,7 +157,12 @@
                 <!-- No results state (for search) -->
                 <div id="noResults" class="fav-empty" style="display:none;">
                     <div class="fav-empty-icon">
-                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><circle cx="20" cy="20" r="14"/><line x1="32" y1="32" x2="44" y2="44"/><line x1="14" y1="20" x2="26" y2="20"/></svg>
+                        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" width="48"
+                            height="48">
+                            <circle cx="20" cy="20" r="14" />
+                            <line x1="32" y1="32" x2="44" y2="44" />
+                            <line x1="14" y1="20" x2="26" y2="20" />
+                        </svg>
                     </div>
                     <p class="fav-empty-title">No courses match</p>
                     <p class="fav-empty-sub">Try a different search term.</p>
@@ -149,6 +183,8 @@
     <div id="notification" class="notification"></div>
 
     <script src="js/api-config.js"></script>
+    <script src="js/modal.js"></script>
     <script src="js/favorites.js"></script>
 </body>
+
 </html>

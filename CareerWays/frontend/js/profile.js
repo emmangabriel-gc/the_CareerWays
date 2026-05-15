@@ -62,10 +62,17 @@ async function loadProfile() {
 }
 
 function handleLogout() {
-    if (!confirm('Are you sure you want to log out?')) return;
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = 'index.html';
+    showConfirm('Are you sure you want to log out?', {
+        title: 'Confirm logout',
+        confirmText: 'Log out',
+        cancelText: 'Stay logged in',
+        danger: true
+    }).then((confirmed) => {
+        if (!confirmed) return;
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    });
 }
 
 function showNotification(message, type = 'info') {

@@ -174,7 +174,7 @@ function displayRecommendedCourses(data) {
         const semanticScore = Math.round(course.semantic_score || 0);
         const relevanceScore = Math.round(course.relevance_score || 0);
         const courseEmbeddingData = embeddingData[course.id] || {};
-        
+
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';
         courseCard.innerHTML = `
@@ -416,9 +416,9 @@ async function saveFavoriteCourse(courseId, priority = 'saved') {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 course_id: courseId,
-                priority: priority 
+                priority: priority
             })
         });
 
@@ -457,14 +457,20 @@ function handleBackToDashboard() {
 
 // Handle Logout
 function handleLogout() {
-    if (confirm('Are you sure you want to log out?')) {
+    showConfirm('Are you sure you want to log out?', {
+        title: 'Confirm logout',
+        confirmText: 'Log out',
+        cancelText: 'Stay logged in',
+        danger: true
+    }).then((confirmed) => {
+        if (!confirmed) return;
         localStorage.clear();
         sessionStorage.clear();
         showNotification('Logged out successfully', 'success');
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 1000);
-    }
+    });
 }
 
 // Show Notification

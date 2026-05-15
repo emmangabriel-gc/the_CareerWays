@@ -3,26 +3,26 @@
 const API_BASE_URL = window.__CW_API_BASE__;
 
 // DOM
-const sidebarAvatar      = document.getElementById('sidebarAvatar');
-const sidebarUserName    = document.getElementById('sidebarUserName');
-const mobileUserName     = document.getElementById('mobileUserName');
-const logoutBtn          = document.getElementById('logoutBtn');
-const burgerBtn          = document.getElementById('burgerBtn');
-const sidebar            = document.getElementById('sidebar');
-const overlay            = document.getElementById('overlay');
-const favoritesGrid      = document.getElementById('favoritesGrid');
-const emptyState         = document.getElementById('emptyState');
-const noResults          = document.getElementById('noResults');
-const favCountBadge      = document.getElementById('favCountBadge');
-const searchInput        = document.getElementById('searchInput');
-const sortSelect         = document.getElementById('sortSelect');
-const courseModal        = document.getElementById('courseModal');
-const modalBody          = document.getElementById('modalBody');
-const modalClose         = document.getElementById('modalClose');
-const notification       = document.getElementById('notification');
+const sidebarAvatar = document.getElementById('sidebarAvatar');
+const sidebarUserName = document.getElementById('sidebarUserName');
+const mobileUserName = document.getElementById('mobileUserName');
+const logoutBtn = document.getElementById('logoutBtn');
+const burgerBtn = document.getElementById('burgerBtn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const favoritesGrid = document.getElementById('favoritesGrid');
+const emptyState = document.getElementById('emptyState');
+const noResults = document.getElementById('noResults');
+const favCountBadge = document.getElementById('favCountBadge');
+const searchInput = document.getElementById('searchInput');
+const sortSelect = document.getElementById('sortSelect');
+const courseModal = document.getElementById('courseModal');
+const modalBody = document.getElementById('modalBody');
+const modalClose = document.getElementById('modalClose');
+const notification = document.getElementById('notification');
 
 let allFavorites = [];   // raw data from API
-let filtered     = [];   // after search/sort
+let filtered = [];   // after search/sort
 
 // ── Init ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,13 +41,13 @@ function checkAuthentication() {
 
 // ── User data ─────────────────────────────────
 function loadUserData() {
-    const user    = JSON.parse(localStorage.getItem('user') || '{}');
-    const name    = user.name || 'User';
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const name = user.name || 'User';
     const initial = name.charAt(0).toUpperCase();
 
-    if (sidebarAvatar)   sidebarAvatar.textContent   = initial;
+    if (sidebarAvatar) sidebarAvatar.textContent = initial;
     if (sidebarUserName) sidebarUserName.textContent = name;
-    if (mobileUserName)  mobileUserName.textContent  = name;
+    if (mobileUserName) mobileUserName.textContent = name;
 }
 
 // ── Event listeners ───────────────────────────
@@ -93,12 +93,12 @@ async function loadFavorites() {
 // ── Filter & sort ─────────────────────────────
 function applyFilters() {
     const query = searchInput.value.trim().toLowerCase();
-    const sort  = sortSelect.value;
+    const sort = sortSelect.value;
 
     filtered = allFavorites.filter(fav => {
         const course = fav.course || fav;
-        const name   = (course.name || '').toLowerCase();
-        const desc   = (course.description || '').toLowerCase();
+        const name = (course.name || '').toLowerCase();
+        const desc = (course.description || '').toLowerCase();
         return !query || name.includes(query) || desc.includes(query);
     });
 
@@ -106,8 +106,8 @@ function applyFilters() {
     filtered.sort((a, b) => {
         const ca = a.course || a;
         const cb = b.course || b;
-        if (sort === 'name')    return (ca.name || '').localeCompare(cb.name || '');
-        if (sort === 'oldest')  return new Date(a.saved_at || 0) - new Date(b.saved_at || 0);
+        if (sort === 'name') return (ca.name || '').localeCompare(cb.name || '');
+        if (sort === 'oldest') return new Date(a.saved_at || 0) - new Date(b.saved_at || 0);
         return new Date(b.saved_at || 0) - new Date(a.saved_at || 0); // newest
     });
 
@@ -123,7 +123,7 @@ function renderGrid() {
 
     if (allFavorites.length === 0) {
         emptyState.style.display = 'flex';
-        noResults.style.display  = 'none';
+        noResults.style.display = 'none';
         return;
     }
 
@@ -143,7 +143,7 @@ function renderGrid() {
 
     // Render sections
     let cardIndex = 0;
-    
+
     // 1st Choice Section
     if (firstChoices.length > 0) {
         const sectionHeader = document.createElement('div');
@@ -155,10 +155,10 @@ function renderGrid() {
             </h3>
         `;
         favoritesGrid.appendChild(sectionHeader);
-        
+
         firstChoices.forEach((fav) => {
             const course = fav.course || fav;
-            const card   = buildCard(fav, course, cardIndex++, true);
+            const card = buildCard(fav, course, cardIndex++, true);
             favoritesGrid.appendChild(card);
         });
     }
@@ -174,10 +174,10 @@ function renderGrid() {
             </h3>
         `;
         favoritesGrid.appendChild(sectionHeader);
-        
+
         secondChoices.forEach((fav) => {
             const course = fav.course || fav;
-            const card   = buildCard(fav, course, cardIndex++, true);
+            const card = buildCard(fav, course, cardIndex++, true);
             favoritesGrid.appendChild(card);
         });
     }
@@ -193,10 +193,10 @@ function renderGrid() {
             </h3>
         `;
         favoritesGrid.appendChild(sectionHeader);
-        
+
         justSaved.forEach((fav) => {
             const course = fav.course || fav;
-            const card   = buildCard(fav, course, cardIndex++, false);
+            const card = buildCard(fav, course, cardIndex++, false);
             favoritesGrid.appendChild(card);
         });
     }
@@ -222,8 +222,8 @@ function buildCard(fav, course, index, isPriority = false) {
 
     // Tags
     const tags = [];
-    if (course.duration)    tags.push(course.duration);
-    if (course.difficulty)  tags.push(course.difficulty);
+    if (course.duration) tags.push(course.duration);
+    if (course.difficulty) tags.push(course.difficulty);
     if (course.career_path) tags.push(course.career_path);
     const tagsHTML = tags.map(t => `<span class="fav-tag">${t}</span>`).join('');
 
@@ -251,7 +251,12 @@ function buildCard(fav, course, index, isPriority = false) {
 
 // ── Remove favorite ───────────────────────────
 async function removeFavorite(favoriteId, btnEl) {
-    if (!confirm('Remove this course from favorites?')) return;
+    const confirmed = await showConfirm('Remove this course from favorites?', {
+        title: 'Remove favorite',
+        confirmText: 'Remove',
+        cancelText: 'Keep it'
+    });
+    if (!confirmed) return;
 
     const token = localStorage.getItem('token');
 
@@ -283,7 +288,7 @@ async function removeFavorite(favoriteId, btnEl) {
 
 // ── Modal ─────────────────────────────────────
 function openModal(index) {
-    const fav    = filtered[index];
+    const fav = filtered[index];
     const course = fav.course || fav;
 
     const skillsHTML = (course.skills_learned && course.skills_learned.length)
@@ -302,8 +307,8 @@ function openModal(index) {
         : '';
 
     const tags = [];
-    if (course.duration)    tags.push(course.duration);
-    if (course.difficulty)  tags.push(course.difficulty);
+    if (course.duration) tags.push(course.duration);
+    if (course.difficulty) tags.push(course.difficulty);
     if (course.career_path) tags.push(course.career_path);
 
     modalBody.innerHTML = `
@@ -354,7 +359,7 @@ function showSkeletons() {
         </div>
     `).join('');
     emptyState.style.display = 'none';
-    noResults.style.display  = 'none';
+    noResults.style.display = 'none';
 }
 
 // ── Sidebar ───────────────────────────────────
@@ -371,25 +376,31 @@ function closeSidebar() {
 // ── Logout ────────────────────────────────────
 function handleLogout(e) {
     e.preventDefault();
-    if (confirm('Are you sure you want to log out?')) {
+    showConfirm('Are you sure you want to log out?', {
+        title: 'Confirm logout',
+        confirmText: 'Log out',
+        cancelText: 'Stay logged in',
+        danger: true
+    }).then((confirmed) => {
+        if (!confirmed) return;
         localStorage.clear();
         sessionStorage.clear();
         window.location.href = 'index.html';
-    }
+    });
 }
 
 // ── Notification ──────────────────────────────
 function showNotification(message, type = 'info') {
     notification.textContent = message;
-    notification.className   = `notification ${type}`;
-    notification.style.display    = 'block';
-    notification.style.opacity    = '1';
+    notification.className = `notification ${type}`;
+    notification.style.display = 'block';
+    notification.style.opacity = '1';
     notification.style.visibility = 'visible';
 
     setTimeout(() => {
         notification.style.opacity = '0';
         setTimeout(() => {
-            notification.style.display    = 'none';
+            notification.style.display = 'none';
             notification.style.visibility = 'hidden';
         }, 300);
     }, 3000);
