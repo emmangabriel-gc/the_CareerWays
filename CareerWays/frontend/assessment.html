@@ -21,13 +21,13 @@
     <link rel="apple-touch-icon" href="assets/web-app-manifest-192x192.png">
 </head>
 
-        <script>
+<script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js');
         });
     }
-    </script>
+</script>
 
 <body>
     <div class="assessment-container">
@@ -88,6 +88,7 @@
     <div id="notification" class="notification"></div>
 
     <script src="js/api-config.js"></script>
+    <script src="js/modal.js"></script>
     <script type="module" src="js/assessment.js"></script>
 </body>
 
