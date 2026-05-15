@@ -21,5 +21,5 @@
         !isLocal;
     window.__CW_API_BASE__ = useRelativeApi
         ? '/api'
-        : 'https://careerways.onrender.com/api';
+        : 'https://careerways-production.up.railway.app/api';
 })();
