@@ -567,8 +567,11 @@ def verify_otp():
         return jsonify({'message': f'Error: {str(e)}'}), 500
 
 
-@auth_bp.route('/reset-password', methods=['POST'])
+@auth_bp.route('/reset-password', methods=['POST', 'OPTIONS'])
 def reset_password():
+    if request.method == 'OPTIONS':
+        return Response(status=204)
+    
     try:
         data = request.get_json()
         if not data or not all(k in data for k in ['email', 'reset_token', 'new_password']):
