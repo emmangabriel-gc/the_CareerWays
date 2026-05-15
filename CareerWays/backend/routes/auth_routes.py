@@ -62,12 +62,20 @@ def get_public_backend_url():
     explicit = os.getenv('BACKEND_URL', '').strip().rstrip('/')
     if explicit:
         return explicit
-    domain = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
+    # Check for various hosting platform domain variables
+    domain = (
+        os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip() or
+        os.getenv('RENDER_EXTERNAL_URL', '').strip() or
+        os.getenv('HEROKU_APP_NAME', '').strip()
+    )
     if domain:
         if domain.startswith('http'):
             return domain.rstrip('/')
+        # For Heroku, construct the URL from app name
+        if os.getenv('HEROKU_APP_NAME'):
+            return f'https://{domain}.herokuapp.com'
         return f'https://{domain}'.rstrip('/')
-    return 'https://thecareerways-production.up.railway.app'
+    return 'https://careerways.onrender.com'
 
 
 def _send_message_with_timeout(msg, timeout_seconds=None):
@@ -257,7 +265,7 @@ def signup():
         _log_mail_error('signup unexpected error', e)
         return jsonify({
             'code': 'SERVER_ERROR',
-            'message': 'Something went wrong. Check Railway logs.',
+            'message': 'Something went wrong. Check server logs.',
         }), 500
 
 
@@ -291,7 +299,7 @@ def login():
         _log_mail_error('login unexpected error', e)
         return jsonify({
             'code': 'SERVER_ERROR',
-            'message': 'Something went wrong. Check Railway logs.',
+            'message': 'Something went wrong. Check server logs.',
         }), 500
 
 
@@ -342,7 +350,7 @@ def resend_verification():
             return jsonify({
                 'message': (
                     'Email is not configured on the server. '
-                    'Set MAIL_USERNAME and MAIL_PASSWORD in Railway.'
+                    'Set MAIL_USERNAME and MAIL_PASSWORD in the server environment.'
                 )
             }), 503
 
@@ -366,7 +374,7 @@ def resend_verification():
         _log_mail_error('resend-verification unexpected error', e)
         return jsonify({
             'code': 'SERVER_ERROR',
-            'message': 'Something went wrong. Check Railway logs.',
+            'message': 'Something went wrong. Check server logs.',
         }), 500
 
 
@@ -457,7 +465,7 @@ def forgot_password():
                 'code': 'MAIL_NOT_CONFIGURED',
                 'message': (
                     'Password reset email is not configured on the server. '
-                    'Set MAIL_USERNAME and MAIL_PASSWORD in Railway, then try again.'
+                    'Set MAIL_USERNAME and MAIL_PASSWORD in the server environment, then try again.'
                 )
             }), 503
 

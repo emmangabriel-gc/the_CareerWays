@@ -16,7 +16,7 @@ _ml_cache = None
 
 
 def _get_ml():
-    """Load NLP stack only when needed (keeps /api/auth/* startup light on Railway)."""
+    """Load NLP stack only when needed (keeps /api/auth/* startup light on the main API process)."""
     global _ml_cache
     if _ml_cache is None:
         from ml_engine import nlp_engine, sentiment_analyzer, RecommendationEngine

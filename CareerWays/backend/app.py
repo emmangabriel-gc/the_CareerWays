@@ -37,7 +37,7 @@ def get_local_sqlite_uri():
 
 
 def _strip_env_quotes(value):
-    """Railway/UI sometimes stores values wrapped in quotes."""
+    """Deployment platforms sometimes store values wrapped in quotes."""
     s = (value or '').strip()
     if len(s) >= 2 and s[0] == s[-1] and s[0] in ('"', "'"):
         s = s[1:-1].strip()
@@ -69,7 +69,7 @@ def _remove_pgbouncer_param(uri):
 
 
 def _merge_cors_origins():
-    """Env-based origins plus known production frontend (Railway env mistakes won't drop Vercel)."""
+    """Env-based origins plus known production frontend (deployment env mistakes won't drop Vercel)."""
     parsed = _parse_cors_origins()
     defaults = [
         'https://the-career-ways.vercel.app',
@@ -96,7 +96,7 @@ def resolve_database_uri():
             "Copy it from Supabase: Project Settings → Database → Connection string → URI. "
             "Do not paste an https:// Supabase API URL or dashboard link as DATABASE_URL."
         )
-    # Railway / Heroku-style URLs use postgres:// which SQLAlchemy rejects
+    # Heroku-style URLs use postgres:// which SQLAlchemy rejects
     if configured_uri.startswith('postgres://'):
         configured_uri = configured_uri.replace(
             'postgres://', 'postgresql://', 1)
@@ -255,7 +255,7 @@ def create_app():
 
     # Register blueprints
     from routes.auth_routes import auth_bp
-    from routes.assessment_routes import assessment_bp
+    from routes.assessment_routes import assessment_bp, analyze_response
     from routes.recommendation_routes import recommendation_bp
     from routes.user_routes import user_bp
     from routes.favorites_routes import favorites_bp
@@ -266,6 +266,10 @@ def create_app():
         recommendation_bp, url_prefix='/api/recommendations')
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(favorites_bp, url_prefix='/api/favorites')
+
+    @app.route('/api/assessment', methods=['POST'])
+    def legacy_assessment():
+        return analyze_response()
 
     # Create tables
     with app.app_context():

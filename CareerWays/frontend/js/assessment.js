@@ -210,7 +210,13 @@ async function handleSubmitAssessment(e) {
             })
         });
 
-        const data = await response_obj.json();
+        let data;
+        const rawText = await response_obj.text();
+        try {
+            data = rawText ? JSON.parse(rawText) : {};
+        } catch (err) {
+            data = { message: rawText || `Server returned status ${response_obj.status}` };
+        }
 
         if (response_obj.ok) {
             // Store assessment ID for results page

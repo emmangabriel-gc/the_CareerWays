@@ -4,6 +4,7 @@ Handles text analysis, sentiment analysis, and recommendation engine
 """
 
 import json
+import os
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -23,6 +24,24 @@ try:
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
     print("Warning: sentence-transformers not available. Using TF-IDF fallback.")
+
+ENABLE_SEMANTIC_EMBEDDINGS = os.getenv(
+    'ENABLE_SEMANTIC_EMBEDDINGS', 'false').strip().lower() in ('1', 'true', 'yes')
+_sentence_transformer_model = None
+
+
+def get_sentence_transformer_model():
+    global _sentence_transformer_model
+    if not SENTENCE_TRANSFORMERS_AVAILABLE:
+        return None
+    if _sentence_transformer_model is None:
+        try:
+            _sentence_transformer_model = SentenceTransformer(
+                'all-MiniLM-L6-v2')
+        except Exception as e:
+            print(f"Sentence-transformer model load failed: {e}")
+            _sentence_transformer_model = None
+    return _sentence_transformer_model
 
 
 def ensure_nltk_resource(resource_path, download_name):
@@ -264,11 +283,12 @@ class NLPEngine:
 
     def create_embedding(self, text):
         """Create vector embedding for text using sentence transformers or TF-IDF fallback"""
-        if SENTENCE_TRANSFORMERS_AVAILABLE:
+        if SENTENCE_TRANSFORMERS_AVAILABLE and ENABLE_SEMANTIC_EMBEDDINGS:
             try:
-                model = SentenceTransformer('all-MiniLM-L6-v2')
-                embedding = model.encode([text])[0]
-                return embedding.tolist()
+                model = get_sentence_transformer_model()
+                if model is not None:
+                    embedding = model.encode([text])[0]
+                    return embedding.tolist()
             except Exception as e:
                 print(
                     f"Sentence transformer error: {e}, falling back to TF-IDF")
@@ -328,7 +348,7 @@ class RecommendationEngine:
         self.vectorizer = TfidfVectorizer(max_features=200)
         self.course_embeddings = None
         self.semantic_embeddings = None
-        self.use_semantic = SENTENCE_TRANSFORMERS_AVAILABLE
+        self.use_semantic = SENTENCE_TRANSFORMERS_AVAILABLE and ENABLE_SEMANTIC_EMBEDDINGS
         self._prepare_embeddings()
 
     def _prepare_embeddings(self):
@@ -349,8 +369,12 @@ class RecommendationEngine:
         # Prepare semantic embeddings if available
         if self.use_semantic:
             try:
-                model = SentenceTransformer('all-MiniLM-L6-v2')
-                self.semantic_embeddings = model.encode(course_texts)
+                model = get_sentence_transformer_model()
+                if model is not None:
+                    self.semantic_embeddings = model.encode(course_texts)
+                else:
+                    self.semantic_embeddings = None
+                    self.use_semantic = False
             except Exception as e:
                 print(f"Semantic embedding preparation failed: {e}")
                 self.semantic_embeddings = None
@@ -366,11 +390,14 @@ class RecommendationEngine:
         # Calculate semantic similarities if available
         if self.use_semantic and self.semantic_embeddings is not None:
             try:
-                model = SentenceTransformer('all-MiniLM-L6-v2')
-                user_embedding = model.encode([user_text])[0]
-                semantic_similarities = cosine_similarity(
-                    [user_embedding], self.semantic_embeddings)[0]
-                similarities = semantic_similarities
+                model = get_sentence_transformer_model()
+                if model is not None:
+                    user_embedding = model.encode([user_text])[0]
+                    semantic_similarities = cosine_similarity(
+                        [user_embedding], self.semantic_embeddings)[0]
+                    similarities = semantic_similarities
+                else:
+                    similarities = np.zeros(len(self.courses_data))
             except Exception as e:
                 print(f"Semantic similarity calculation failed: {e}")
                 similarities = np.zeros(len(self.courses_data))

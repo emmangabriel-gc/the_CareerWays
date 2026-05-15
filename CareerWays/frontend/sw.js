@@ -57,7 +57,7 @@ self.addEventListener('activate', e => {
   );
 });
 
-// ── Fetch: only same-origin (Vercel static files). Never intercept Railway API. ──
+// ── Fetch: only same-origin (Vercel static files). Never intercept Render API. ──
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   const scopeOrigin = new URL(self.registration.scope).origin;
@@ -67,7 +67,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Same-origin /api/* is proxied to Railway — never cache (GET/POST/OPTIONS)
+  // Same-origin /api/* is proxied to Render — never cache (GET/POST/OPTIONS)
   if (url.pathname.startsWith('/api/')) {
     e.respondWith(fetch(e.request));
     return;

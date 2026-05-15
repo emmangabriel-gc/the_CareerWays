@@ -115,7 +115,7 @@ async function handleSendOtp() {
             const msg =
                 data.message ||
                 (data._raw
-                    ? `Server returned ${response.status} (not JSON). Check Railway logs.`
+                    ? `Server returned ${response.status} (not JSON). Check server logs.`
                     : `Request failed (${response.status})`);
             console.error('forgot-password error', response.status, data);
             throw new Error(`${msg}${code}`);
