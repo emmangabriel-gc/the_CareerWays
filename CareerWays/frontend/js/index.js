@@ -226,7 +226,7 @@ function acceptTerms() {
                 document.getElementById('signup-email').value = pendingFormData.email;
                 document.getElementById('signup-password').value = pendingFormData.password;
                 document.getElementById('signup-confirm').value = pendingFormData.confirmPassword;
-                handleSignupSubmit({ preventDefault: () => {} });
+                handleSignupSubmit({ preventDefault: () => { } });
             }
             break;
         case 'guest':
@@ -272,6 +272,7 @@ async function handleLoginSubmit(e) {
     const password = document.getElementById('login-password').value;
     lastLoginEmail = email;
 
+    showGlobalLoading('Logging in...');
     try {
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
@@ -301,6 +302,8 @@ async function handleLoginSubmit(e) {
     } catch (error) {
         console.error('Login error:', error);
         showNotification('An error occurred. Please try again.', 'error');
+    } finally {
+        hideGlobalLoading();
     }
 }
 
@@ -315,6 +318,8 @@ async function handleSignupSubmit(e) {
         showNotification('Passwords do not match', 'error');
         return;
     }
+
+    showGlobalLoading('Creating account...');
     if (password.length < 6) {
         showNotification('Password must be at least 6 characters long', 'error');
         return;
@@ -348,12 +353,15 @@ async function handleSignupSubmit(e) {
     } catch (error) {
         console.error('Signup error:', error);
         showNotification('An error occurred. Please try again.', 'error');
+    } finally {
+        hideGlobalLoading();
     }
 }
 
 // ─── Resend Verification Email ─────────────────────────────────────────────
 async function handleResendVerification(statusElementId) {
     const statusEl = document.getElementById(statusElementId);
+    showGlobalLoading('Sending verification email...');
 
     if (resendCooldown) {
         if (statusEl) {
@@ -403,15 +411,23 @@ async function handleResendVerification(statusElementId) {
             statusEl.textContent = 'Network error. Please try again.';
             statusEl.style.color = 'var(--color-error, #c0392b)';
         }
+    } finally {
+        hideGlobalLoading();
     }
 }
 
 // ─── Guest Access ──────────────────────────────────────────────────────────
 function handleGuestAccessSubmit() {
+    if (isGuestAssessmentBlocked()) {
+        showNotification('Guest access is limited to one assessment per device. Please sign up or log in to continue.', 'warning');
+        return;
+    }
+
     localStorage.removeItem('token');
     localStorage.setItem('userType', 'guest');
     localStorage.setItem('guestId', 'guest_' + Date.now());
 
+    showGlobalLoading('Continuing as guest...');
     showNotification('Continuing as guest...', 'info');
     setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
 }

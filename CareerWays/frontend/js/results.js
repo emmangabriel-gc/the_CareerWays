@@ -48,6 +48,10 @@ function loadUserData() {
         userNameDisplay.textContent = user.name || 'User';
     } else if (userType === 'guest') {
         userNameDisplay.textContent = 'Guest';
+        if (isGuestAssessmentBlocked() && anotherAssessmentBtn) {
+            anotherAssessmentBtn.disabled = true;
+            anotherAssessmentBtn.textContent = 'Guest limit reached';
+        }
     }
 }
 
@@ -317,6 +321,13 @@ async function saveFavoriteCourse(courseId, priority = 'saved') {
 
 // Handle Another Assessment
 function handleAnotherAssessment() {
+    const userType = localStorage.getItem('userType');
+    if (userType === 'guest' && isGuestAssessmentBlocked()) {
+        showNotification('Guest users may take only one assessment per device. Please sign up or log in to continue.', 'warning');
+        return;
+    }
+
+    showGlobalLoading('Opening assessment...');
     sessionStorage.removeItem('assessmentId');
     window.location.href = 'assessment.html';
 }

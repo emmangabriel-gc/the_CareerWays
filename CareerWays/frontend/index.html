@@ -853,6 +853,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="js/common.js"></script>
   <script>
     // Nav scroll effect
     const nav = document.getElementById('nav');
@@ -860,7 +861,28 @@
       nav.classList.toggle('scrolled', window.scrollY > 10);
     });
 
+    function attachLoadingLinks() {
+      const loadingTargets = document.querySelectorAll(
+        'a[href$="login.html"], a[href$="signup.html"], a.btn-big.solid, a.cta-bar'
+      );
+
+      loadingTargets.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          const href = event.currentTarget.getAttribute('href');
+          if (!href) return;
+
+          event.preventDefault();
+          showGlobalLoading('Opening page...');
+          setTimeout(() => {
+            window.location.href = href;
+          }, 250);
+        });
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      attachLoadingLinks();
+
       const qrContainer = document.getElementById('qrCode');
       if (!qrContainer || typeof QRCode === 'undefined') {
         return;

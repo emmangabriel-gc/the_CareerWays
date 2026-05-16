@@ -339,6 +339,21 @@ function closeModal() {
 
 // ── Helpers ───────────────────────────────────
 function goToAssessment() {
+    const userType = localStorage.getItem('userType');
+    if (userType === 'guest' && isGuestAssessmentBlocked()) {
+        const notification = document.getElementById('notification');
+        if (notification) {
+            notification.textContent = 'Guest users may take only one assessment per device. Sign up or log in to continue.';
+            notification.className = 'notification warning';
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.classList.add('hidden');
+                setTimeout(() => { notification.style.display = 'none'; }, 300);
+            }, 3000);
+        }
+        return;
+    }
+    showGlobalLoading('Opening assessment...');
     window.location.href = 'assessment.html';
 }
 

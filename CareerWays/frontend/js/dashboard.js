@@ -80,6 +80,11 @@ function loadUserData() {
         const created = user.created_at ? new Date(user.created_at).toLocaleDateString() : '—';
         settingsMemberSince.textContent = created;
     }
+
+    if (userType === 'guest' && isGuestAssessmentBlocked() && startAssessmentBtn) {
+        startAssessmentBtn.disabled = true;
+        startAssessmentBtn.textContent = 'Guest assessment limit reached';
+    }
 }
 
 // ── Event listeners ───────────────────────────
@@ -155,6 +160,7 @@ async function loadPreviousAssessments() {
     }
 
     const token = localStorage.getItem('token');
+    showGlobalLoading('Loading assessments...');
 
     try {
         const response = await fetch(`${API_BASE_URL}/assessments/list`, {
@@ -195,6 +201,8 @@ async function loadPreviousAssessments() {
         const msg = '<div class="cw-empty">Error loading assessments.</div>';
         if (dashboardAssessmentsList) dashboardAssessmentsList.innerHTML = msg;
         if (assessmentsList) assessmentsList.innerHTML = msg;
+    } finally {
+        hideGlobalLoading();
     }
 }
 
@@ -297,6 +305,13 @@ function escapeHtml(str) {
 
 // ── Start assessment ──────────────────────────
 function handleStartAssessment() {
+    const userType = localStorage.getItem('userType');
+    if (userType === 'guest' && isGuestAssessmentBlocked()) {
+        showNotification('Guest users may take only one assessment per device. Please sign up or log in to continue.', 'warning');
+        return;
+    }
+
+    showGlobalLoading('Starting assessment...');
     showNotification('Starting assessment...', 'info');
     setTimeout(() => { window.location.href = 'assessment.html'; }, 800);
 }

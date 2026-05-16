@@ -27,14 +27,18 @@ function setupEventListeners() {
 
     resetPasswordBtn.addEventListener('click', () => {
         // Log out and redirect to forgot password page
+        showGlobalLoading('Redirecting...');
         localStorage.clear();
         sessionStorage.clear();
-        window.location.href = 'forgot-password.html';
+        setTimeout(() => {
+            window.location.href = 'forgot-password.html';
+        }, 200);
     });
 }
 
 async function loadProfile() {
     const token = localStorage.getItem('token');
+    showGlobalLoading('Loading profile...');
 
     try {
         const response = await fetch(`${API_BASE_URL}/users/profile`, {
@@ -58,6 +62,8 @@ async function loadProfile() {
     } catch (error) {
         console.error('Error loading profile:', error);
         showNotification('An error occurred while loading profile', 'error');
+    } finally {
+        hideGlobalLoading();
     }
 }
 

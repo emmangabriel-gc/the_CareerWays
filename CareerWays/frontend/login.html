@@ -22,13 +22,13 @@
 </head>
 
 
-        <script>
+<script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js');
         });
     }
-    </script>
+</script>
 
 
 <body>
@@ -122,9 +122,11 @@
                 <div id="verify-email" class="tab-content">
                     <div class="verify-email-screen">
                         <div class="verify-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                             </svg>
                         </div>
                         <h4>Check your inbox</h4>
@@ -139,7 +141,8 @@
 
                         <p class="resend-status" id="resendStatus"></p>
 
-                        <p class="verify-hint">Didn't get it? Check your spam folder or <span class="switch-tab link-style" data-tab="signup">try a different email</span>.</p>
+                        <p class="verify-hint">Didn't get it? Check your spam folder or <span
+                                class="switch-tab link-style" data-tab="signup">try a different email</span>.</p>
                     </div>
                 </div>
             </div>
@@ -162,38 +165,51 @@
             <div class="terms-content" id="termsContent">
                 <div class="terms-text">
                     <h3>1. Acceptance of Terms</h3>
-                    <p>By accessing and using CareerWays, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not use our service.</p>
-                    
+                    <p>By accessing and using CareerWays, you agree to be bound by these Terms and Conditions. If you do
+                        not agree with any part of these terms, please do not use our service.</p>
+
                     <h3>2. Service Description</h3>
-                    <p>CareerWays is an AI-powered course recommendation system designed to help users discover suitable academic courses based on their interests, skills, and career aspirations.</p>
-                    
+                    <p>CareerWays is an AI-powered course recommendation system designed to help users discover suitable
+                        academic courses based on their interests, skills, and career aspirations.</p>
+
                     <h3>3. User Accounts</h3>
-                    <p>Users may create accounts or use the service as guests. Account holders are responsible for maintaining the confidentiality of their login credentials.</p>
-                    
+                    <p>Users may create accounts or use the service as guests. Account holders are responsible for
+                        maintaining the confidentiality of their login credentials.</p>
+
                     <h3>4. Privacy and Data Collection</h3>
-                    <p>We collect and process personal information including but not limited to: name, email, assessment responses, and course preferences. This data is used to provide personalized recommendations and improve our services.</p>
-                    
+                    <p>We collect and process personal information including but not limited to: name, email, assessment
+                        responses, and course preferences. This data is used to provide personalized recommendations and
+                        improve our services.</p>
+
                     <h3>5. AI Recommendations</h3>
-                    <p>Course recommendations are generated using artificial intelligence and machine learning algorithms. While we strive for accuracy, these recommendations should be used as guidance only and not as definitive career advice.</p>
-                    
+                    <p>Course recommendations are generated using artificial intelligence and machine learning
+                        algorithms. While we strive for accuracy, these recommendations should be used as guidance only
+                        and not as definitive career advice.</p>
+
                     <h3>6. User Content</h3>
-                    <p>By submitting assessment responses and other content, you grant CareerWays a license to use this information for service improvement and personalization purposes.</p>
-                    
+                    <p>By submitting assessment responses and other content, you grant CareerWays a license to use this
+                        information for service improvement and personalization purposes.</p>
+
                     <h3>7. Intellectual Property</h3>
-                    <p>All content, trademarks, and intellectual property on CareerWays are owned by or licensed to us. Users may not reproduce, distribute, or create derivative works without permission.</p>
-                    
+                    <p>All content, trademarks, and intellectual property on CareerWays are owned by or licensed to us.
+                        Users may not reproduce, distribute, or create derivative works without permission.</p>
+
                     <h3>8. Limitation of Liability</h3>
-                    <p>CareerWays is provided "as is" without warranties of any kind. We are not liable for any decisions made based on our recommendations or for any service interruptions.</p>
-                    
+                    <p>CareerWays is provided "as is" without warranties of any kind. We are not liable for any
+                        decisions made based on our recommendations or for any service interruptions.</p>
+
                     <h3>9. Account Termination</h3>
-                    <p>We reserve the right to terminate or suspend accounts that violate these terms or engage in inappropriate behavior.</p>
-                    
+                    <p>We reserve the right to terminate or suspend accounts that violate these terms or engage in
+                        inappropriate behavior.</p>
+
                     <h3>10. Changes to Terms</h3>
-                    <p>We may update these Terms and Conditions periodically. Continued use of the service after changes constitutes acceptance of the new terms.</p>
-                    
+                    <p>We may update these Terms and Conditions periodically. Continued use of the service after changes
+                        constitutes acceptance of the new terms.</p>
+
                     <h3>11. Governing Law</h3>
-                    <p>These terms are governed by applicable local laws. Any disputes shall be resolved in accordance with these laws.</p>
-                    
+                    <p>These terms are governed by applicable local laws. Any disputes shall be resolved in accordance
+                        with these laws.</p>
+
                     <h3>12. Contact Information</h3>
                     <p>For questions about these terms, please contact us through our support channels.</p>
                 </div>
@@ -219,10 +235,11 @@
         <div class="terms-modal unverified-modal">
             <div class="terms-header">
                 <div class="unverified-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="8" x2="12" y2="12" />
+                        <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
                 </div>
                 <h2>Email Not Verified</h2>
@@ -244,6 +261,7 @@
     <div id="notification" class="notification"></div>
 
     <script src="js/api-config.js"></script>
+    <script src="js/common.js"></script>
     <script src="js/index.js"></script>
 </body>
 

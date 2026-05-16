@@ -41,6 +41,12 @@ function checkAuthentication() {
         window.location.href = 'login.html';
         return;
     }
+
+    if (userType === 'guest' && isGuestAssessmentBlocked()) {
+        showNotification('Guest users may take only one assessment per device. Please log in or sign up to continue.', 'warning');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
+        return;
+    }
 }
 
 // Load User Data
@@ -229,6 +235,10 @@ async function handleSubmitAssessment(e) {
             // Store assessment ID for results page
             currentAssessmentId = data.assessment_id;
             sessionStorage.setItem('assessmentId', data.assessment_id);
+
+            if (userType === 'guest') {
+                markGuestAssessmentTaken();
+            }
 
             // Display bot response
             const botMessage = createMessage(
