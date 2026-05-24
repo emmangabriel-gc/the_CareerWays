@@ -423,6 +423,11 @@ class RecommendationEngine:
         # Apply relevance filtering
         relevance_scores = self._calculate_relevance_scores(user_text)
 
+        # Hard filter: exclude courses with zero keyword overlap unless semantic is exceptional
+        zero_overlap_mask = relevance_scores < 0.1
+        exceptional_semantic = similarities > 0.8
+        hard_filter = ~(zero_overlap_mask & ~exceptional_semantic)
+
         # Combine similarities with relevance (normalized)
         # Don't multiply - use weighted sum instead for more balanced scoring
         normalized_similarities = similarities / \
@@ -433,14 +438,22 @@ class RecommendationEngine:
 
         # Blend semantic similarity (70%) with relevance (30%)
         final_scores = normalized_similarities * 0.7 + normalized_relevance * 0.3
+        
+        # Apply hard filter to eliminate irrelevant courses
+        final_scores = final_scores * hard_filter.astype(float)
 
         # Get top N recommendations - use a much lower threshold
         min_relevance_threshold = 0.01
         valid_indices = np.where(final_scores >= min_relevance_threshold)[0]
 
         if len(valid_indices) == 0:
-            # If nothing matches, return top courses by semantic similarity
-            top_indices = np.argsort(similarities)[::-1][:top_n]
+            # Fallback: return courses with at least weak keyword overlap
+            weak_overlap = relevance_scores >= 0.15
+            if weak_overlap.any():
+                valid_indices = np.where(weak_overlap)[0]
+                top_indices = valid_indices[np.argsort(similarities[valid_indices])[::-1][:top_n]]
+            else:
+                return []
         else:
             top_indices = valid_indices[np.argsort(
                 final_scores[valid_indices])[::-1][:top_n]]
@@ -477,11 +490,19 @@ class RecommendationEngine:
             union = len(user_tokens | course_tokens)
             jaccard_similarity = overlap / union if union > 0 else 0
 
-            # Apply relevance boost for courses with meaningful overlap
-            if jaccard_similarity > 0.05:
-                relevance_scores[i] = 1.0 + jaccard_similarity * 2
-            else:
-                relevance_scores[i] = 0.5  # Penalty for low relevance
+            # Stricter scoring: require meaningful keyword overlap
+            if jaccard_similarity > 0.3:  # Strong overlap
+                relevance_scores[i] = 0.9
+            elif jaccard_similarity > 0.15:  # Medium overlap
+                relevance_scores[i] = 0.7
+            elif jaccard_similarity > 0.05:  # Weak overlap
+                relevance_scores[i] = 0.5
+            elif overlap >= 2:  # At least 2 matching keywords
+                relevance_scores[i] = 0.4
+            elif overlap == 1:  # Only 1 matching keyword - very low
+                relevance_scores[i] = 0.15
+            else:  # Zero overlap - penalize heavily
+                relevance_scores[i] = 0.02  # Only passes if semantic is exceptional
 
         return relevance_scores
 
