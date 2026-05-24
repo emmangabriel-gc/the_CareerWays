@@ -438,20 +438,21 @@ class RecommendationEngine:
 
         # Blend semantic similarity (70%) with relevance (30%)
         final_scores = normalized_similarities * 0.7 + normalized_relevance * 0.3
-        
+
         # Apply hard filter to eliminate irrelevant courses
         final_scores = final_scores * hard_filter.astype(float)
 
-        # Get top N recommendations - use a much lower threshold
-        min_relevance_threshold = 0.01
+        # Get top N recommendations - require stronger match quality
+        min_relevance_threshold = 0.20
         valid_indices = np.where(final_scores >= min_relevance_threshold)[0]
 
         if len(valid_indices) == 0:
-            # Fallback: return courses with at least weak keyword overlap
-            weak_overlap = relevance_scores >= 0.15
+            # Fallback: return courses with at least moderate keyword overlap
+            weak_overlap = relevance_scores >= 0.25
             if weak_overlap.any():
                 valid_indices = np.where(weak_overlap)[0]
-                top_indices = valid_indices[np.argsort(similarities[valid_indices])[::-1][:top_n]]
+                top_indices = valid_indices[np.argsort(
+                    similarities[valid_indices])[::-1][:top_n]]
             else:
                 return []
         else:
@@ -502,7 +503,8 @@ class RecommendationEngine:
             elif overlap == 1:  # Only 1 matching keyword - very low
                 relevance_scores[i] = 0.15
             else:  # Zero overlap - penalize heavily
-                relevance_scores[i] = 0.02  # Only passes if semantic is exceptional
+                # Only passes if semantic is exceptional
+                relevance_scores[i] = 0.02
 
         return relevance_scores
 
