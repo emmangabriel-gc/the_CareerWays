@@ -356,7 +356,8 @@ class RecommendationEngine:
         course_texts = []
         for course in self.courses_data:
             # Combine all text from course with better weighting
-            skills = course.get('skills_taught', []) or course.get('skills_learned', []) or []
+            skills = course.get('skills_taught', []) or course.get(
+                'skills_learned', []) or []
             keywords = course.get('keywords', []) or []
             text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}"
             course_texts.append(text)
@@ -421,17 +422,28 @@ class RecommendationEngine:
 
         # Apply relevance filtering
         relevance_scores = self._calculate_relevance_scores(user_text)
-        final_scores = similarities * relevance_scores
 
-        # Get top N recommendations with minimum relevance threshold
-        min_relevance_threshold = 0.1
+        # Combine similarities with relevance (normalized)
+        # Don't multiply - use weighted sum instead for more balanced scoring
+        normalized_similarities = similarities / \
+            (np.max(similarities) + 0.001) if np.max(similarities) > 0 else similarities
+        normalized_relevance = relevance_scores / \
+            (np.max(relevance_scores) +
+             0.001) if np.max(relevance_scores) > 0 else relevance_scores
+
+        # Blend semantic similarity (70%) with relevance (30%)
+        final_scores = normalized_similarities * 0.7 + normalized_relevance * 0.3
+
+        # Get top N recommendations - use a much lower threshold
+        min_relevance_threshold = 0.01
         valid_indices = np.where(final_scores >= min_relevance_threshold)[0]
 
         if len(valid_indices) == 0:
-            return []
-
-        top_indices = valid_indices[np.argsort(
-            final_scores[valid_indices])[::-1][:top_n]]
+            # If nothing matches, return top courses by semantic similarity
+            top_indices = np.argsort(similarities)[::-1][:top_n]
+        else:
+            top_indices = valid_indices[np.argsort(
+                final_scores[valid_indices])[::-1][:top_n]]
 
         recommendations = []
         for idx in top_indices:
@@ -453,9 +465,11 @@ class RecommendationEngine:
         relevance_scores = np.ones(len(self.courses_data))
 
         for i, course in enumerate(self.courses_data):
-            skills = course.get('skills_taught', []) or course.get('skills_learned', []) or []
+            skills = course.get('skills_taught', []) or course.get(
+                'skills_learned', []) or []
             keywords = course.get('keywords', []) or []
-            course_text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}".lower()
+            course_text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}".lower(
+            )
             course_tokens = set(re.findall(r'\b\w+\b', course_text))
 
             # Calculate token overlap

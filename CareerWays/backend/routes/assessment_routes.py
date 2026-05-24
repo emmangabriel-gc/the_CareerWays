@@ -134,7 +134,8 @@ def analyze_response():
             score_data = RecommendationEngine.calculate_match_score(
                 skills,
                 interests,
-                course_data.get('skills_taught', []) or course_data.get('skills_learned', []),
+                course_data.get('skills_taught', []) or course_data.get(
+                    'skills_learned', []),
                 course_data.get('keywords', [])
             )
 
@@ -150,7 +151,7 @@ def analyze_response():
             )
 
             # Only include courses with meaningful match scores
-            if final_match_score >= 15:  # Minimum threshold to avoid irrelevant courses
+            if final_match_score >= 5:  # Lower threshold to allow more relevant courses
                 match_scores[course_id] = final_match_score
                 recommended_course_ids.append(course_id)
 
