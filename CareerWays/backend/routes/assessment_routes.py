@@ -134,7 +134,7 @@ def analyze_response():
             score_data = RecommendationEngine.calculate_match_score(
                 skills,
                 interests,
-                course_data.get('skills_taught', []),
+                course_data.get('skills_taught', []) or course_data.get('skills_learned', []),
                 course_data.get('keywords', [])
             )
 

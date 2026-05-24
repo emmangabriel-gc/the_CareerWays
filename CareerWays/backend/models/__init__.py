@@ -186,7 +186,10 @@ class Course(db.Model):
             'duration': self.duration,
             'difficulty': self.difficulty,
             'career_path': self.career_path,
+            'skills_taught': self.skills_taught or [],
             'skills_learned': self.skills_taught or [],
+            'keywords': self.keywords or [],
+            'prerequisites': self.prerequisites or [],
             'career_prospects': self.career_prospects,
             'requirements': self.requirements,
             'category': self.category

@@ -356,7 +356,9 @@ class RecommendationEngine:
         course_texts = []
         for course in self.courses_data:
             # Combine all text from course with better weighting
-            text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(course.get('skills_taught', []))} {' '.join(course.get('keywords', []))}"
+            skills = course.get('skills_taught', []) or course.get('skills_learned', []) or []
+            keywords = course.get('keywords', []) or []
+            text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}"
             course_texts.append(text)
 
         # Prepare TF-IDF embeddings
@@ -451,7 +453,9 @@ class RecommendationEngine:
         relevance_scores = np.ones(len(self.courses_data))
 
         for i, course in enumerate(self.courses_data):
-            course_text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(course.get('skills_taught', []))} {' '.join(course.get('keywords', []))}".lower()
+            skills = course.get('skills_taught', []) or course.get('skills_learned', []) or []
+            keywords = course.get('keywords', []) or []
+            course_text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}".lower()
             course_tokens = set(re.findall(r'\b\w+\b', course_text))
 
             # Calculate token overlap
