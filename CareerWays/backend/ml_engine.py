@@ -30,6 +30,21 @@ ENABLE_SEMANTIC_EMBEDDINGS = os.getenv(
 _sentence_transformer_model = None
 
 
+def _simple_sent_tokenize(text):
+    if not isinstance(text, str):
+        return []
+    cleaned = re.sub(r'\s+', ' ', text.strip())
+    if not cleaned:
+        return []
+    return re.split(r'(?<=[.!?])\s+', cleaned)
+
+
+def _simple_word_tokenize(text):
+    if not isinstance(text, str):
+        return []
+    return re.findall(r"[A-Za-z0-9']+", text.lower())
+
+
 def get_sentence_transformer_model():
     global _sentence_transformer_model
     if not SENTENCE_TRANSFORMERS_AVAILABLE:
@@ -82,9 +97,31 @@ class NLPEngine:
 
     def __init__(self):
         # Initialize NLTK resources on first use
-        _initialize_nltk_resources()
+        self.use_nltk = True
+        try:
+            _initialize_nltk_resources()
+            self.stop_words = set(stopwords.words('english'))
+            self.sent_tokenize = sent_tokenize
+            self.word_tokenize = word_tokenize
+            self.pos_tag = pos_tag
+        except Exception as e:
+            print(
+                f"NLTK initialization failed: {e}. Using fallback tokenizers.")
+            self.use_nltk = False
+            self.stop_words = {
+                'a', 'an', 'and', 'the', 'of', 'in', 'for', 'to', 'with',
+                'on', 'at', 'by', 'from', 'is', 'are', 'was', 'were', 'be',
+                'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+                'will', 'would', 'shall', 'should', 'may', 'might', 'can',
+                'could', 'I', 'me', 'my', 'you', 'your', 'he', 'she', 'it',
+                'we', 'they', 'them', 'their', 'this', 'that', 'these', 'those',
+                'not', 'no', 'so', 'but', 'or', 'if', 'then', 'because', 'as',
+                'what', 'which', 'who', 'whom', 'where', 'when', 'why', 'how'
+            }
+            self.sent_tokenize = _simple_sent_tokenize
+            self.word_tokenize = _simple_word_tokenize
+            self.pos_tag = lambda tokens: [(token, 'NN') for token in tokens]
 
-        self.stop_words = set(stopwords.words('english'))
         self.skill_keywords = {
             'programming': ['python', 'javascript', 'java', 'c++', 'coding', 'programming', 'sql', 'html', 'css'],
             'mathematics': ['math', 'calculus', 'algebra', 'statistics', 'numerical', 'computation'],
@@ -101,8 +138,9 @@ class NLPEngine:
 
     def tokenize(self, text):
         """Tokenize text into words and sentences"""
-        sentences = sent_tokenize(text.lower())
-        words = word_tokenize(text.lower())
+        normalized = text.lower() if isinstance(text, str) else ''
+        sentences = self.sent_tokenize(normalized)
+        words = self.word_tokenize(normalized)
 
         # Remove punctuation and stopwords
         filtered_words = [
@@ -177,7 +215,7 @@ class NLPEngine:
     def extract_experiences(self, text):
         """Extract actual experiences (clubs, competitions, activities) from text"""
         text_lower = text.lower()
-        sentences = sent_tokenize(text)
+        sentences = self.sent_tokenize(text)
 
         # Experience keywords to look for
         experience_keywords = {
@@ -226,7 +264,7 @@ class NLPEngine:
 
         # If no experiences found, fallback to simple entity extraction but filter better
         if not experiences:
-            sentences = sent_tokenize(text)
+            sentences = self.sent_tokenize(text)
             entities = []
 
             # Experience-indicating words
@@ -234,10 +272,10 @@ class NLPEngine:
                               'won', 'awarded', 'certified', 'trained', 'mentored', 'coordinated']
 
             for sentence in sentences:
-                tokens = word_tokenize(sentence.lower())
+                tokens = self.word_tokenize(sentence.lower())
                 # Look for sentences with experience indicators
                 if any(indicator in tokens for indicator in exp_indicators):
-                    pos_tags = pos_tag(tokens)
+                    pos_tags = self.pos_tag(tokens)
                     for word, pos in pos_tags:
                         if pos in ['NN', 'NNP', 'NNS'] and len(word) > 3:
                             # Filter out personal/professional identity words
