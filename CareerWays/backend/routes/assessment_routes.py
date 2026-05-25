@@ -151,7 +151,7 @@ def analyze_response():
             )
 
             # Only include courses with meaningful match scores
-            if final_match_score >= 32:
+            if final_match_score >= 30:
                 match_scores[course_id] = final_match_score
                 recommended_course_ids.append(course_id)
 
@@ -252,8 +252,6 @@ def get_assessment(assessment_id):
                 course_dict = course.to_dict()
                 score = assessment.match_scores.get(course_id, 0)
                 course_dict['match_score'] = score
-                course_dict['semantic_score'] = score
-                course_dict['relevance_score'] = score
                 courses_data.append(course_dict)
 
         return jsonify({

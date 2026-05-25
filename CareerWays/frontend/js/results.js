@@ -158,10 +158,11 @@ function displayRecommendedCourses(data) {
 
     courses.forEach((course, index) => {
         const matchScore = Math.max(0, Math.min(100, Math.round(course.match_score || 0)));
-        const semanticScore = Math.round(course.semantic_score || 0);
-        const relevanceScore = Math.round(course.relevance_score || 0);
+        const semanticScore = course.semantic_score !== undefined ? Math.round(course.semantic_score || 0) : null;
+        const relevanceScore = course.relevance_score !== undefined ? Math.round(course.relevance_score || 0) : null;
         const skillMatch = course.skill_match !== undefined ? Math.round(course.skill_match || 0) : null;
         const interestMatch = course.interest_match !== undefined ? Math.round(course.interest_match || 0) : null;
+        const hasBreakdown = semanticScore !== null || relevanceScore !== null || skillMatch !== null || interestMatch !== null;
 
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';
@@ -182,10 +183,11 @@ function displayRecommendedCourses(data) {
                         <div class="match-progress-fill" style="width: ${matchScore}%;"></div>
                     </div>
                 </div>
-
+                ${hasBreakdown ? `
                 <div class="match-breakdown">
                     <div class="breakdown-title">Recommendation Breakdown</div>
                     <div class="breakdown-metrics">
+                        ${semanticScore !== null ? `
                         <div class="metric-item">
                             <span class="metric-label">Semantic Relevance:</span>
                             <div class="metric-bar">
@@ -193,6 +195,8 @@ function displayRecommendedCourses(data) {
                                 <span class="metric-value">${semanticScore}%</span>
                             </div>
                         </div>
+                        ` : ''}
+                        ${relevanceScore !== null ? `
                         <div class="metric-item">
                             <span class="metric-label">Topic Relevance:</span>
                             <div class="metric-bar">
@@ -200,6 +204,7 @@ function displayRecommendedCourses(data) {
                                 <span class="metric-value">${relevanceScore}%</span>
                             </div>
                         </div>
+                        ` : ''}
                         ${skillMatch !== null ? `
                         <div class="metric-item">
                             <span class="metric-label">Skill Match:</span>
@@ -220,7 +225,7 @@ function displayRecommendedCourses(data) {
                         ` : ''}
                     </div>
                 </div>
-
+                ` : ''}
                 <p class="course-description">${course.description || 'A promising course for your profile.'}</p>
                 <div class="course-details">
                     <div class="detail-item">
