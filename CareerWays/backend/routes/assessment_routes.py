@@ -151,7 +151,7 @@ def analyze_response():
             )
 
             # Only include courses with meaningful match scores
-            if final_match_score >= 25:  # Require a stronger match for recommendations
+            if final_match_score >= 32:
                 match_scores[course_id] = final_match_score
                 recommended_course_ids.append(course_id)
 

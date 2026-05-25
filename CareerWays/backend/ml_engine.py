@@ -349,18 +349,51 @@ class RecommendationEngine:
         self.course_embeddings = None
         self.semantic_embeddings = None
         self.use_semantic = SENTENCE_TRANSFORMERS_AVAILABLE and ENABLE_SEMANTIC_EMBEDDINGS
+        self.generic_terms = {
+            'learn', 'learning', 'study', 'education', 'career', 'course',
+            'program', 'programs', 'work', 'experience', 'training', 'skill',
+            'skills', 'student', 'students', 'degree', 'university', 'school',
+            'professional', 'development', 'help', 'helping', 'passionate',
+            'interested', 'interest', 'management', 'managements'
+        }
         self._prepare_embeddings()
+
+    def _normalize_text(self, text):
+        if not text:
+            return ''
+        normalized = re.sub(r'[^a-z0-9\s]', ' ', str(text).lower())
+        return re.sub(r'\s+', ' ', normalized).strip()
+
+    def _filtered_tokens(self, text):
+        tokens = set(re.findall(r'\b\w+\b', self._normalize_text(text)))
+        return tokens - self.generic_terms
+
+    def _build_course_profile_text(self, course, include_description=True):
+        name = course.get('name', '') or ''
+        category = course.get('category', '') or ''
+        skills = [str(skill).lower() for skill in course.get(
+            'skills_taught', []) or course.get('skills_learned', []) or []]
+        keywords = [str(keyword).lower()
+                    for keyword in course.get('keywords', []) or []]
+        description = course.get('description', '') or ''
+
+        profile_tokens = [name, category] + skills + keywords
+        strong_text = ' '.join(profile_tokens + skills + keywords)
+        profile_text = f"{strong_text} {description}" if include_description else strong_text
+        return self._normalize_text(profile_text)
+
+    def _build_user_profile_text(self, user_text):
+        user_tokens = self._filtered_tokens(user_text)
+        if not user_tokens:
+            return self._normalize_text(user_text)
+        return self._normalize_text(f"{user_text} {' '.join(user_tokens)}")
 
     def _prepare_embeddings(self):
         """Prepare course embeddings using semantic models"""
         course_texts = []
         for course in self.courses_data:
-            # Combine all text from course with better weighting
-            skills = course.get('skills_taught', []) or course.get(
-                'skills_learned', []) or []
-            keywords = course.get('keywords', []) or []
-            text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}"
-            course_texts.append(text)
+            course_text = self._build_course_profile_text(course)
+            course_texts.append(course_text)
 
         # Prepare TF-IDF embeddings
         try:
@@ -391,11 +424,12 @@ class RecommendationEngine:
         similarities = np.zeros(len(self.courses_data))
 
         # Calculate semantic similarities if available
+        user_profile = self._build_user_profile_text(user_text)
         if self.use_semantic and self.semantic_embeddings is not None:
             try:
                 model = get_sentence_transformer_model()
                 if model is not None:
-                    user_embedding = model.encode([user_text])[0]
+                    user_embedding = model.encode([user_profile])[0]
                     semantic_similarities = cosine_similarity(
                         [user_embedding], self.semantic_embeddings)[0]
                     similarities = semantic_similarities
@@ -408,13 +442,13 @@ class RecommendationEngine:
         # Calculate TF-IDF similarities as fallback or combination
         if self.course_embeddings is not None:
             try:
-                user_embedding = self.vectorizer.transform([user_text])
+                user_embedding = self.vectorizer.transform([user_profile])
                 tfidf_similarities = cosine_similarity(
                     user_embedding, self.course_embeddings)[0]
 
                 # Combine semantic and TF-IDF if both available
                 if self.use_semantic and self.semantic_embeddings is not None:
-                    similarities = 0.7 * similarities + 0.3 * tfidf_similarities
+                    similarities = 0.65 * similarities + 0.35 * tfidf_similarities
                 else:
                     similarities = tfidf_similarities
             except Exception as e:
@@ -423,38 +457,43 @@ class RecommendationEngine:
         # Apply relevance filtering
         relevance_scores = self._calculate_relevance_scores(user_text)
 
-        # Hard filter: exclude courses with zero keyword overlap unless semantic is exceptional
-        zero_overlap_mask = relevance_scores < 0.1
-        exceptional_semantic = similarities > 0.8
+        # Hard filter: exclude courses with low strong-term overlap unless semantic similarity is strong
+        zero_overlap_mask = relevance_scores < 0.30
+        exceptional_semantic = similarities > 0.70
         hard_filter = ~(zero_overlap_mask & ~exceptional_semantic)
 
         # Combine similarities with relevance (normalized)
-        # Don't multiply - use weighted sum instead for more balanced scoring
         normalized_similarities = similarities / \
             (np.max(similarities) + 0.001) if np.max(similarities) > 0 else similarities
         normalized_relevance = relevance_scores / \
             (np.max(relevance_scores) +
              0.001) if np.max(relevance_scores) > 0 else relevance_scores
 
-        # Blend semantic similarity (70%) with relevance (30%)
-        final_scores = normalized_similarities * 0.7 + normalized_relevance * 0.3
+        # Blend similarity with relevance for stronger quality control
+        final_scores = normalized_similarities * 0.65 + normalized_relevance * 0.35
 
         # Apply hard filter to eliminate irrelevant courses
         final_scores = final_scores * hard_filter.astype(float)
 
-        # Get top N recommendations - require stronger match quality
-        min_relevance_threshold = 0.20
-        valid_indices = np.where(final_scores >= min_relevance_threshold)[0]
+        # Get top N recommendations - require good match quality
+        min_relevance_threshold = 0.30
+        min_similarity_threshold = 0.25
+        valid_indices = np.where(
+            (final_scores >= min_relevance_threshold) &
+            (
+                (similarities >= min_similarity_threshold) |
+                (relevance_scores >= min_relevance_threshold)
+            )
+        )[0]
 
         if len(valid_indices) == 0:
-            # Fallback: return courses with at least moderate keyword overlap
-            weak_overlap = relevance_scores >= 0.25
-            if weak_overlap.any():
-                valid_indices = np.where(weak_overlap)[0]
-                top_indices = valid_indices[np.argsort(
-                    similarities[valid_indices])[::-1][:top_n]]
-            else:
+            # Fallback: return courses with reasonable keyword overlap and blended score
+            fallback_mask = (relevance_scores >= 0.40) & (final_scores >= 0.30)
+            valid_indices = np.where(fallback_mask)[0]
+            if len(valid_indices) == 0:
                 return []
+            top_indices = np.argsort(final_scores[valid_indices])[::-1][:top_n]
+            top_indices = valid_indices[top_indices]
         else:
             top_indices = valid_indices[np.argsort(
                 final_scores[valid_indices])[::-1][:top_n]]
@@ -473,38 +512,26 @@ class RecommendationEngine:
         return recommendations
 
     def _calculate_relevance_scores(self, user_text):
-        """Calculate relevance scores based on keyword matching and semantic relevance"""
-        user_text_lower = user_text.lower()
-        user_tokens = set(re.findall(r'\b\w+\b', user_text_lower))
-        relevance_scores = np.ones(len(self.courses_data))
+        """Calculate relevance scores based on strong keyword and skills overlap."""
+        user_tokens = self._filtered_tokens(user_text)
+        relevance_scores = np.zeros(len(self.courses_data))
 
         for i, course in enumerate(self.courses_data):
-            skills = course.get('skills_taught', []) or course.get(
-                'skills_learned', []) or []
-            keywords = course.get('keywords', []) or []
-            course_text = f"{course.get('name', '')} {course.get('description', '')} {' '.join(skills)} {' '.join(keywords)}".lower(
-            )
-            course_tokens = set(re.findall(r'\b\w+\b', course_text))
-
-            # Calculate token overlap
+            course_profile = self._build_course_profile_text(
+                course, include_description=False)
+            course_tokens = self._filtered_tokens(course_profile)
             overlap = len(user_tokens & course_tokens)
-            union = len(user_tokens | course_tokens)
-            jaccard_similarity = overlap / union if union > 0 else 0
 
-            # Stricter scoring: require meaningful keyword overlap
-            if jaccard_similarity > 0.3:  # Strong overlap
-                relevance_scores[i] = 0.9
-            elif jaccard_similarity > 0.15:  # Medium overlap
-                relevance_scores[i] = 0.7
-            elif jaccard_similarity > 0.05:  # Weak overlap
-                relevance_scores[i] = 0.5
-            elif overlap >= 2:  # At least 2 matching keywords
-                relevance_scores[i] = 0.4
-            elif overlap == 1:  # Only 1 matching keyword - very low
-                relevance_scores[i] = 0.15
-            else:  # Zero overlap - penalize heavily
-                # Only passes if semantic is exceptional
-                relevance_scores[i] = 0.02
+            if overlap >= 4:
+                relevance_scores[i] = 1.0
+            elif overlap == 3:
+                relevance_scores[i] = 0.85
+            elif overlap == 2:
+                relevance_scores[i] = 0.65
+            elif overlap == 1:
+                relevance_scores[i] = 0.35
+            else:
+                relevance_scores[i] = 0.0
 
         return relevance_scores
 

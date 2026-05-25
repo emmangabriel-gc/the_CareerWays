@@ -205,7 +205,8 @@ class Favorite(db.Model):
         'users.id'), nullable=False, index=True)
     course_id = db.Column(db.String(50), db.ForeignKey(
         'courses.id'), nullable=False, index=True)
-    priority = db.Column(db.String(20), default='saved')  # first_choice, second_choice, saved
+    # first_choice, second_choice, saved
+    priority = db.Column(db.String(20), default='saved')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Ensure unique combination of user and course
