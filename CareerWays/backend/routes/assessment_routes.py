@@ -118,13 +118,13 @@ def analyze_response():
         # Enhanced Recommendation Engine
         rec_engine = RecommendationEngine(courses_list)
         recommendations = rec_engine.recommend(
-            user_response, top_n=8)  # Get more recommendations for better filtering
+            user_response, top_n=12)  # Get more recommendations for better filtering
 
-        # Calculate enhanced match scores for each course
-        top_courses = []
+        # Calculate enhanced match scores for each course and choose the top 6
         match_scores = {}
         recommended_course_ids = []
         embedding_data = {}
+        candidate_courses = []
 
         for rec in recommendations:
             course_id = rec['course_id']
@@ -150,28 +150,36 @@ def analyze_response():
                 relevance_score * 0.2  # Relevance filtering
             )
 
-            # Only include courses with meaningful match scores
-            if final_match_score >= 30:
-                match_scores[course_id] = final_match_score
-                recommended_course_ids.append(course_id)
+            course_data['match_score'] = final_match_score
+            course_data['semantic_score'] = semantic_score
+            course_data['relevance_score'] = relevance_score
 
-                # Store embedding data for visualization
-                embedding_data[course_id] = {
+            candidate_courses.append({
+                'course_id': course_id,
+                'course_data': course_data,
+                'final_match_score': final_match_score,
+                'embedding': {
                     'semantic_score': semantic_score,
                     'relevance_score': relevance_score,
                     'skill_match': score_data['skill_match'],
                     'interest_match': score_data['interest_match'],
                     'semantic_bonus': score_data.get('semantic_bonus', 0)
                 }
+            })
 
-                course_data['match_score'] = final_match_score
-                course_data['semantic_score'] = semantic_score
-                course_data['relevance_score'] = relevance_score
-                top_courses.append(course_data)
+        # Sort candidates by final match score and keep the top 6
+        candidate_courses.sort(
+            key=lambda item: item['final_match_score'], reverse=True)
+        selected_courses = candidate_courses[:6]
 
-        # Sort by final match score and take top recommendations
-        top_courses.sort(key=lambda x: x['match_score'], reverse=True)
-        top_courses = top_courses[:6]  # Limit to top 6 for user display
+        top_courses = []
+        for item in selected_courses:
+            course_id = item['course_id']
+            course_data = item['course_data']
+            top_courses.append(course_data)
+            match_scores[course_id] = item['final_match_score']
+            recommended_course_ids.append(course_id)
+            embedding_data[course_id] = item['embedding']
 
         # Calculate overall match score
         overall_match_score = sum(match_scores.values(
