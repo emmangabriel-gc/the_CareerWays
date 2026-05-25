@@ -171,7 +171,7 @@ def analyze_response():
 
         # Sort by final match score and take top recommendations
         top_courses.sort(key=lambda x: x['match_score'], reverse=True)
-        top_courses = top_courses[:3]  # Limit to top 3 for user display
+        top_courses = top_courses[:6]  # Limit to top 6 for user display
 
         # Calculate overall match score
         overall_match_score = sum(match_scores.values(

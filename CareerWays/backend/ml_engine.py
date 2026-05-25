@@ -490,13 +490,22 @@ class RecommendationEngine:
             # Fallback: return courses with reasonable keyword overlap and blended score
             fallback_mask = (relevance_scores >= 0.40) & (final_scores >= 0.30)
             valid_indices = np.where(fallback_mask)[0]
-            if len(valid_indices) == 0:
-                return []
-            top_indices = np.argsort(final_scores[valid_indices])[::-1][:top_n]
-            top_indices = valid_indices[top_indices]
-        else:
-            top_indices = valid_indices[np.argsort(
-                final_scores[valid_indices])[::-1][:top_n]]
+
+        # If there are fewer than top_n valid matches, supplement with the next best courses
+        if len(valid_indices) < top_n:
+            remaining = np.setdiff1d(
+                np.arange(len(final_scores)), valid_indices)
+            remaining_sorted = remaining[np.argsort(
+                final_scores[remaining])[::-1]]
+            supplement_count = top_n - len(valid_indices)
+            supplement = remaining_sorted[:supplement_count]
+            valid_indices = np.concatenate([valid_indices, supplement])
+
+        if len(valid_indices) == 0:
+            return []
+
+        top_indices = valid_indices[np.argsort(
+            final_scores[valid_indices])[::-1][:top_n]]
 
         recommendations = []
         for idx in top_indices:
