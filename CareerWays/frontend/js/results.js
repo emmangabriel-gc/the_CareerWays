@@ -148,7 +148,6 @@ function displayProfileAnalysis(data) {
 // Display Recommended Courses
 function displayRecommendedCourses(data) {
     const courses = data.courses || [];
-    const embeddingData = data.embedding_data || {};
 
     if (courses.length === 0) {
         coursesList.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-light);">No course recommendations available at this time.</p>';
@@ -161,7 +160,8 @@ function displayRecommendedCourses(data) {
         const matchScore = Math.max(0, Math.min(100, Math.round(course.match_score || 0)));
         const semanticScore = Math.round(course.semantic_score || 0);
         const relevanceScore = Math.round(course.relevance_score || 0);
-        const courseEmbeddingData = embeddingData[course.id] || {};
+        const skillMatch = course.skill_match !== undefined ? Math.round(course.skill_match || 0) : null;
+        const interestMatch = course.interest_match !== undefined ? Math.round(course.interest_match || 0) : null;
 
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';
@@ -182,37 +182,45 @@ function displayRecommendedCourses(data) {
                         <div class="match-progress-fill" style="width: ${matchScore}%;"></div>
                     </div>
                 </div>
-                
-                <!-- Vector Embedding Visualization -->
-                <div class="embedding-analysis">
-                    <div class="embedding-title">🧠 AI Analysis Breakdown:</div>
-                    <div class="embedding-metrics">
+
+                <div class="match-breakdown">
+                    <div class="breakdown-title">Recommendation Breakdown</div>
+                    <div class="breakdown-metrics">
                         <div class="metric-item">
-                            <span class="metric-label">Semantic Match:</span>
+                            <span class="metric-label">Semantic Relevance:</span>
                             <div class="metric-bar">
                                 <div class="metric-fill semantic-fill" style="width: ${semanticScore}%"></div>
                                 <span class="metric-value">${semanticScore}%</span>
                             </div>
                         </div>
                         <div class="metric-item">
-                            <span class="metric-label">Relevance Score:</span>
+                            <span class="metric-label">Topic Relevance:</span>
                             <div class="metric-bar">
                                 <div class="metric-fill relevance-fill" style="width: ${relevanceScore}%"></div>
                                 <span class="metric-value">${relevanceScore}%</span>
                             </div>
                         </div>
-                        ${courseEmbeddingData.skill_match !== undefined ? `
+                        ${skillMatch !== null ? `
                         <div class="metric-item">
                             <span class="metric-label">Skill Match:</span>
                             <div class="metric-bar">
-                                <div class="metric-fill skill-fill" style="width: ${Math.round(courseEmbeddingData.skill_match)}%"></div>
-                                <span class="metric-value">${Math.round(courseEmbeddingData.skill_match)}%</span>
+                                <div class="metric-fill skill-fill" style="width: ${skillMatch}%"></div>
+                                <span class="metric-value">${skillMatch}%</span>
+                            </div>
+                        </div>
+                        ` : ''}
+                        ${interestMatch !== null ? `
+                        <div class="metric-item">
+                            <span class="metric-label">Interest Match:</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill interest-fill" style="width: ${interestMatch}%"></div>
+                                <span class="metric-value">${interestMatch}%</span>
                             </div>
                         </div>
                         ` : ''}
                     </div>
                 </div>
-                
+
                 <p class="course-description">${course.description || 'A promising course for your profile.'}</p>
                 <div class="course-details">
                     <div class="detail-item">
