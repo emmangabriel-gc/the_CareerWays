@@ -20,6 +20,7 @@ COURSES_DATA = [
         'career_prospects': 'Work in hospitals, clinics, or private practice as a registered nurse',
         'requirements': 'Biology and Chemistry background recommended',
         'category': 'Healthcare',
+        'licensure_exams': 'PNLE (Philippine Nursing Licensure Examination)',
         'keywords': ['nursing', 'healthcare', 'patient', 'medical', 'clinical', 'care']
     },
     {
@@ -33,6 +34,7 @@ COURSES_DATA = [
         'career_prospects': 'Practice as a midwife in hospitals or community settings',
         'requirements': 'Strong interest in maternal and child health',
         'category': 'Healthcare',
+        'licensure_exams': 'MLE (Midwifery Licensure Examination)',
         'keywords': ['midwifery', 'obstetrics', 'pregnancy', 'childbirth', 'maternal', 'health']
     },
     {
@@ -46,6 +48,7 @@ COURSES_DATA = [
         'career_prospects': 'Work as accountant, auditor, or financial consultant',
         'requirements': 'Strong analytical and mathematical skills',
         'category': 'Business',
+        'licensure_exams': 'CPALE (Certified Public Accountant Licensure Examination)',
         'keywords': ['accounting', 'finance', 'auditing', 'taxation', 'business', 'numbers']
     },
     {
@@ -98,6 +101,7 @@ COURSES_DATA = [
         'career_prospects': 'Customs Officer, Trade Compliance Specialist, or International Trade Consultant',
         'requirements': 'Attention to detail and strong analytical skills',
         'category': 'Business',
+        'licensure_exams': 'CBLE (Customs Broker Licensure Examination)',
         'keywords': ['customs', 'trade', 'administration', 'compliance', 'regulations', 'international']
     },
     {
@@ -111,6 +115,7 @@ COURSES_DATA = [
         'career_prospects': 'Software Developer, System Administrator, or IT Consultant',
         'requirements': 'Strong problem-solving and analytical skills',
         'category': 'IT',
+        'tesda_certification': 'NC II in Computer Systems Servicing, NC III in Programming (.NET Technology/Java), NC III in Web Development)',
         'keywords': ['programming', 'information technology', 'coding', 'software', 'network', 'database']
     },
     {
@@ -124,6 +129,7 @@ COURSES_DATA = [
         'career_prospects': 'Game Developer, Game Designer, or Graphics Programmer',
         'requirements': 'Passion for gaming and creative problem-solving',
         'category': 'IT',
+        'tesda_certification': 'NC III in Game Programming',
         'keywords': ['game', 'development', 'graphics', 'programming', 'entertainment', 'multimedia']
     },
     {
@@ -137,6 +143,7 @@ COURSES_DATA = [
         'career_prospects': 'Animator, VFX Artist, or Motion Graphics Designer',
         'requirements': 'Artistic talent and creative vision',
         'category': 'Arts',
+        'tesda_certification': 'NC II and NC III in Digital Animation, NC III in 3D Animation, NC II in Illustration and NC III in Visual Graphic Design',
         'keywords': ['animation', 'digital art', 'visual effects', 'graphics', 'multimedia', 'motion']
     },
     {
@@ -150,6 +157,7 @@ COURSES_DATA = [
         'career_prospects': 'Software Engineer, AI Researcher, or Systems Architect',
         'requirements': 'Strong mathematical and logical reasoning',
         'category': 'IT',
+        'tesda_certification': 'NC II in Computer Systems Servicing, NC III in Programming (.NET Technology/Java), NC III in Web Development)',
         'keywords': ['computer science', 'algorithms', 'programming', 'software', 'research', 'technology']
     },
     {
@@ -163,6 +171,7 @@ COURSES_DATA = [
         'career_prospects': 'High School Math Teacher or Mathematics Educator',
         'requirements': 'Passion for teaching and strong mathematical knowledge',
         'category': 'Education',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['education', 'teaching', 'mathematics', 'secondary', 'school', 'curriculum']
     },
     {
@@ -176,6 +185,7 @@ COURSES_DATA = [
         'career_prospects': 'Elementary School Teacher or Education Specialist',
         'requirements': 'Patience and love for working with children',
         'category': 'Education',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['education', 'teaching', 'elementary', 'primary', 'children', 'school']
     },
     {
@@ -189,6 +199,7 @@ COURSES_DATA = [
         'career_prospects': 'Preschool Teacher, Daycare Director, or Early Childhood Specialist',
         'requirements': 'Passion for early childhood development',
         'category': 'Education',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['education', 'early childhood', 'preschool', 'children', 'development', 'teaching']
     },
     {
@@ -202,6 +213,7 @@ COURSES_DATA = [
         'career_prospects': 'Arts Teacher, Cultural Coordinator, or Arts Administrator',
         'requirements': 'Passion for arts and culture',
         'category': 'Arts',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['arts', 'education', 'culture', 'teaching', 'creative', 'history']
     },
     {
@@ -215,6 +227,7 @@ COURSES_DATA = [
         'career_prospects': 'High School English Teacher or Language Educator',
         'requirements': 'Strong writing and communication skills',
         'category': 'Education',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['education', 'teaching', 'english', 'literature', 'writing', 'secondary']
     },
     {
@@ -228,6 +241,7 @@ COURSES_DATA = [
         'career_prospects': 'Filipino Language Teacher or Cultural Educator',
         'requirements': 'Fluency in Filipino and passion for language teaching',
         'category': 'Education',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['education', 'teaching', 'filipino', 'language', 'literature', 'secondary']
     },
     {
@@ -241,6 +255,7 @@ COURSES_DATA = [
         'career_prospects': 'Physical Education Teacher, Coach, or Fitness Manager',
         'requirements': 'Passion for sports and physical fitness',
         'category': 'Education',
+        'licensure_exams': 'LET (Licensure Examination for Teachers)',
         'keywords': ['education', 'physical education', 'sports', 'coaching', 'fitness', 'health']
     },
     {
@@ -267,6 +282,8 @@ COURSES_DATA = [
         'career_prospects': 'Hotel Manager, Event Planner, or Restaurant Manager',
         'requirements': 'Excellent customer service orientation',
         'category': 'Hospitality',
+        'tesda_certification': 'NC II in Food and Beverage Services, NC II in Bartending, NC II in Housekeeping, NC II in Bread and Pastry Production',
+        'professional_certification': 'CHP (Certified Hospitality Professional)',
         'keywords': ['hospitality', 'hotel', 'management', 'service', 'event', 'tourism']
     },
     {
@@ -280,6 +297,8 @@ COURSES_DATA = [
         'career_prospects': 'Tourism Manager, Travel Consultant, or Destination Manager',
         'requirements': 'Passion for travel and cultural diversity',
         'category': 'Hospitality',
+        'tesda_certification': 'NC II in Travel Services, NC II in Tour Guiding, NC III in Events Management Services',
+        'professional_certification': 'CTP (Certified Tourism Professional), CATP (Certified Associate in Tourism and Hospitality Professionals), CGSP (Certified Guest Service Professional)',
         'keywords': ['tourism', 'travel', 'management', 'destination', 'hospitality', 'planning']
     },
 ]

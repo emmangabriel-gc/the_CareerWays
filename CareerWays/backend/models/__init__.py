@@ -167,6 +167,9 @@ class Course(db.Model):
     # Vector embedding for similarity
     embedding = db.Column(db.JSON, nullable=True)
     category = db.Column(db.String(100), nullable=True)  # Course category
+    licensure_exams = db.Column(db.String(500), nullable=True)
+    tesda_certification = db.Column(db.String(500), nullable=True)
+    professional_certification = db.Column(db.String(500), nullable=True)
 
     # Metadata
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -192,7 +195,10 @@ class Course(db.Model):
             'prerequisites': self.prerequisites or [],
             'career_prospects': self.career_prospects,
             'requirements': self.requirements,
-            'category': self.category
+            'category': self.category,
+            'licensure_exams': self.licensure_exams,
+            'tesda_certification': self.tesda_certification,
+            'professional_certification': self.professional_certification
         }
 
 
