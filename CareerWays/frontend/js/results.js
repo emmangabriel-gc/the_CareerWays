@@ -164,6 +164,11 @@ function displayRecommendedCourses(data) {
         const interestMatch = course.interest_match !== undefined ? Math.round(course.interest_match || 0) : null;
         const hasBreakdown = semanticScore !== null || relevanceScore !== null || skillMatch !== null || interestMatch !== null;
 
+        const licensureExams = course['licensure exams'] || course.licensure_exams || '';
+        const tesdaCertification = course['tesda certification'] || course.tesda_certification || '';
+        const professionalCertification = course['professional certification'] || course.professional_certification || '';
+        const hasCertificationInfo = licensureExams || tesdaCertification || professionalCertification;
+
         const courseCard = document.createElement('div');
         courseCard.className = 'course-card';
         courseCard.innerHTML = `
@@ -238,6 +243,13 @@ function displayRecommendedCourses(data) {
                         <span class="detail-label">Career Path:</span> ${course.career_path || 'Professional Development'}
                     </div>
                 </div>
+                ${hasCertificationInfo ? `
+                <div class="course-certifications">
+                    ${licensureExams ? `<div class="certification-item"><span class="cert-label">Licensure Exams:</span> ${licensureExams}</div>` : ''}
+                    ${tesdaCertification ? `<div class="certification-item"><span class="cert-label">TESDA Certification:</span> ${tesdaCertification}</div>` : ''}
+                    ${professionalCertification ? `<div class="certification-item"><span class="cert-label">Professional Certification:</span> ${professionalCertification}</div>` : ''}
+                </div>
+                ` : ''}
             </div>
             <div class="course-card-footer">
                 <button class="btn-primary" onclick="showSaveChoiceModal('${course.id}')">Save</button>
